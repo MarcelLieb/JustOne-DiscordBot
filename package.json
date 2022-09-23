@@ -1,0 +1,14 @@
+{
+  "name": "just-one",
+  "version": "1.0.0",
+  "description": "A Discord Bot for the game to play the game Just One in Discord Chats",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Marclie",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.4.0"
+  }
+}

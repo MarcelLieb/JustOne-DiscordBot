@@ -12,7 +12,7 @@ export abstract class Game {
     events: Array<Event>;
     client: Client;
     abstract currentPhase: Phase;
-    constructor(client: Client,guildId: string, channelId: string, players: Set<User>) {
+    constructor(client: Client, guildId: string, channelId: string, players: Set<User>) {
         this.client = client;
         this.guildId = guildId;
         this.channelId = channelId;
@@ -29,26 +29,32 @@ export abstract class Phase {
 }
 
 export class Timer {
-    private speedUpAmount: number;
-    // Unix timestamp at which the timer ends
-    endTime: number;
+    endTime: number;  // Unix timestamp at which the timer ends
     timedMessages: Array<InteractionResponse>;
     timeOut: NodeJS.Timeout;
     timeOutFunction: () => void;
+    authorisedUsers: Set<User>;
     get timeLeft() {
         return Math.floor((this.endTime - Date.now()) / 1000);
     }
 
-    constructor(duration: number, timedMessages: Array<InteractionResponse>, speedUpAmount: number = 5, timeOutfunction: () => void) {
+    constructor(users: Set<User>, duration: number, timedMessages: Array<InteractionResponse>, timeOutfunction: () => void) {
+        this.authorisedUsers = users;
         this.endTime = Date.now() + duration * 1000;
         this.timedMessages = timedMessages; 
-        this.speedUpAmount = speedUpAmount;
         this.timeOutFunction = timeOutfunction;
         this.timeOut = setTimeout(this.timeOutFunction, duration * 1000);
     }
 
-    speedUp(speedUp: number = this.speedUpAmount) {
-        this.endTime -= speedUp * 1000;
+    speedUp(user:User) {
+        if (!this.authorisedUsers.has(user)) return;
+        this.authorisedUsers.delete(user);
+        if (this.authorisedUsers.size === 0) {
+            this.stop();
+            return;
+        }
+
+        this.endTime = Date.now() + this.timeLeft * 1000 * this.authorisedUsers.size / (this.authorisedUsers.size + 1);
         this.timedMessages.forEach(async reply => {
             const message = await reply.awaitMessageComponent();
             // TODO: Might need extra permissions
@@ -63,5 +69,9 @@ export class Timer {
     stop() {
         clearTimeout(this.timeOut);
         this.timeOutFunction();
+    }
+
+    destroy() {
+        clearTimeout(this.timeOut);
     }
 }

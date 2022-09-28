@@ -33,6 +33,9 @@ export class Timer {
     timedMessages: Array<InteractionResponse>;
     timeOut: NodeJS.Timeout;
     timeOutFunction: () => void;
+    get timeLeft() {
+        return Math.floor((this.endTime - Date.now()) / 1000);
+    }
     
 
     constructor(duration: number, timedMessages: Array<InteractionResponse>, speedUpAmount: number = 5, timeOutfunction: () => void) {

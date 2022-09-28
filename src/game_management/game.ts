@@ -1,4 +1,4 @@
-import { CacheType, Interaction, User, MessageComponentInteraction, InteractionResponse } from "discord.js";
+import { Interaction, User, InteractionResponse } from "discord.js";
 
 export type Event = [
     eventType: String,

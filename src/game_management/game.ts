@@ -55,4 +55,9 @@ export class Timer {
         clearTimeout(this.timeOut);
         this.timeOut = setTimeout(() => this.timeOutFunction, (this.endTime - Date.now()) * 1000);
     }
+
+    stop() {
+        clearTimeout(this.timeOut);
+        this.timeOutFunction();
+    }
 }

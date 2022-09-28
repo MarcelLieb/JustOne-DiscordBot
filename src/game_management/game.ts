@@ -9,7 +9,7 @@ export abstract class Game {
     guildId: string;
     channelId: string;
     players: Set<User>;
-    events: Array<Event>;
+    abstract events: Array<Event>;
     client: Client;
     abstract currentPhase: Phase;
     constructor(client: Client, guildId: string, channelId: string, players: Set<User>) {
@@ -17,7 +17,6 @@ export abstract class Game {
         this.guildId = guildId;
         this.channelId = channelId;
         this.players = players;
-        this.events = [];
     }
 }
 

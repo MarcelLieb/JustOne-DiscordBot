@@ -1,4 +1,4 @@
-import { Interaction, User, InteractionResponse } from "discord.js";
+import { Interaction, User, InteractionResponse, Client } from "discord.js";
 
 export type Event = [
     eventType: String,
@@ -10,8 +10,10 @@ export abstract class Game {
     channelId: string;
     players: Set<User>;
     events: Array<Event>;
+    client: Client;
     abstract currentPhase: Phase;
-    constructor(guildId: string, channelId: string, players: Set<User>) {
+    constructor(client: Client,guildId: string, channelId: string, players: Set<User>) {
+        this.client = client;
         this.guildId = guildId;
         this.channelId = channelId;
         this.players = players;
@@ -36,7 +38,6 @@ export class Timer {
     get timeLeft() {
         return Math.floor((this.endTime - Date.now()) / 1000);
     }
-    
 
     constructor(duration: number, timedMessages: Array<InteractionResponse>, speedUpAmount: number = 5, timeOutfunction: () => void) {
         this.endTime = Date.now() + duration * 1000;

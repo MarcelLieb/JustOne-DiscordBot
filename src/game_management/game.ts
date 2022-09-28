@@ -1,9 +1,9 @@
 import { Interaction, User, InteractionResponse, Client } from "discord.js";
 
-export type Event = [
-    eventType: String,
-    listener: (interaction: Interaction) => void
-];
+export type Event = {
+    name: string,
+    execute: (interaction: Interaction) => Promise<void>
+};
 
 export abstract class Game {
     guildId: string;

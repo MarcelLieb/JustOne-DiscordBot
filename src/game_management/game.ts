@@ -8,17 +8,16 @@ export type Event = {
 export abstract class Game {
     guildId: string;
     channelId: string;
-    players: Set<User>;
+    abstract players: Set<User>;
     createInteraction?: Interaction;
     rootMessage?: Message;
     abstract events: Array<Event>;
     client: Client;
     abstract currentPhase: Phase;
-    constructor(client: Client, guildId: string, channelId: string, players: Set<User>, createInteraction?: Interaction) {
+    constructor(client: Client, guildId: string, channelId: string, createInteraction?: Interaction) {
         this.client = client;
         this.guildId = guildId;
         this.channelId = channelId;
-        this.players = players;
         this.createInteraction = createInteraction;
     }
 }

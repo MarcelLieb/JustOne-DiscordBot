@@ -27,7 +27,7 @@ client.on('interactionCreate', async interaction => {
 			return;
 		}
 		if (interaction.guildId === null) return;
-		const game = new JustOne(client, interaction.guildId, interaction.channelId, new Set([interaction.user]), interaction);
+		const game = new JustOne(client, interaction.guildId, interaction.channelId, new Set(), interaction);
 		games.push(game);
 	}
 });

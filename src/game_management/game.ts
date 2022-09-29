@@ -9,14 +9,16 @@ export abstract class Game {
     guildId: string;
     channelId: string;
     players: Set<User>;
+    createInteraction?: Interaction;
     abstract events: Array<Event>;
     client: Client;
     abstract currentPhase: Phase;
-    constructor(client: Client, guildId: string, channelId: string, players: Set<User>) {
+    constructor(client: Client, guildId: string, channelId: string, players: Set<User>, createInteraction?: Interaction) {
         this.client = client;
         this.guildId = guildId;
         this.channelId = channelId;
         this.players = players;
+        this.createInteraction = createInteraction;
     }
 }
 
@@ -30,8 +32,8 @@ export abstract class Phase {
 export class Timer {
     endTime: number;  // Unix timestamp at which the timer ends
     timedMessages: Array<InteractionResponse>;
-    timeOut: NodeJS.Timeout;
-    timeOutFunction: () => void;
+    timeout: NodeJS.Timeout;
+    timeoutFunction: () => void;
     authorisedUsers: Set<User>;
     get timeLeft() {
         return Math.floor((this.endTime - Date.now()) / 1000);
@@ -41,8 +43,8 @@ export class Timer {
         this.authorisedUsers = users;
         this.endTime = Date.now() + duration * 1000;
         this.timedMessages = timedMessages; 
-        this.timeOutFunction = timeOutfunction;
-        this.timeOut = setTimeout(this.timeOutFunction, duration * 1000);
+        this.timeoutFunction = timeOutfunction;
+        this.timeout = setTimeout(this.timeoutFunction, duration * 1000);
     }
 
     speedUp(user:User) {
@@ -61,16 +63,16 @@ export class Timer {
             const newContent = oldContent.replace(/<t:(\d+):R>/, `<t:${Math.floor(this.endTime / 1000)}:R>`);
             message.update({ content: newContent });
         });
-        clearTimeout(this.timeOut);
-        this.timeOut = setTimeout(() => this.timeOutFunction, (this.endTime - Date.now()) * 1000);
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => this.timeoutFunction, (this.endTime - Date.now()) * 1000);
     }
 
     stop() {
-        clearTimeout(this.timeOut);
-        this.timeOutFunction();
+        clearTimeout(this.timeout);
+        this.timeoutFunction();
     }
 
     destroy() {
-        clearTimeout(this.timeOut);
+        clearTimeout(this.timeout);
     }
 }

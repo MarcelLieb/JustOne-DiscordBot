@@ -108,8 +108,15 @@ class JustOneStartPhase extends Phase {
                 fetchReply: true
             }
         ).then(reply => {
-            this.timer = new Timer(game.players, 300, [reply], () => {});
+            this.timer = new Timer(game.players, 300, [reply], this.advancePhase.bind(this));
             this.game.rootMessage = reply;
         });
+    }
+
+    advancePhase(): void {
+        this.events.forEach(event => {
+            this.client.off(event.name, event.execute);
+        });
+        this.game.rootMessage?.edit({content: "Game starting!", components: []}).then(() => {console.log("Game starting!")}).catch(console.error);
     }
 }

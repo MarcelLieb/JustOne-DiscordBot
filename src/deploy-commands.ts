@@ -9,7 +9,7 @@ if (!token || !clientId || !guildId) {
 }
 
 const commands = [
-	new SlashCommandBuilder().setName('start').setDescription('Start a new JustOne Game')
+	new SlashCommandBuilder().setName('start').setDescription('Start a new JustOne Game').setDMPermission(false),
 ]
 	.map(command => command.toJSON());
 

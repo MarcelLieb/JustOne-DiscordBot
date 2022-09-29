@@ -1,6 +1,8 @@
 // Require the necessary discord.js classes
 import { Client, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
+import { Game } from './game_management/game.js';
+import { JustOne } from './game_management/JustOne.js';
 dotenv.config();
 const token = process.env.DISCORD_TOKEN;
 
@@ -12,17 +14,21 @@ client.once('ready', () => {
 	console.log('Ready!');
 });
 
+const games = new Array<Game>();
+
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
 	const { commandName } = interaction;
 
-	if (commandName === 'ping') {
-		await interaction.reply('Pong!');
-	} else if (commandName === 'server') {
-		await interaction.reply(`Server name: ${interaction.guild?.name}\nTotal members: ${interaction.guild?.memberCount}`);
-	} else if (commandName === 'user') {
-		await interaction.reply({ content: `Your tag: ${interaction.user.tag}\nYour id: ${interaction.user.id}`, ephemeral: true });
+	if (commandName === 'start') {
+		if (games.find(game => game.guildId === interaction.guildId && game.channelId === interaction.channelId)) {
+			await interaction.reply({ content: 'There is already a game in this channel', ephemeral: true });
+			return;
+		}
+		if (interaction.guildId === null) return;
+		const game = new JustOne(client, interaction.guildId, interaction.channelId, new Set([interaction.user]), interaction);
+		games.push(game);
 	}
 });
 

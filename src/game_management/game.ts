@@ -1,4 +1,4 @@
-import { Interaction, User, InteractionResponse, Client } from "discord.js";
+import { Interaction, User, Client, Message } from "discord.js";
 
 export type Event = {
     name: string,
@@ -10,6 +10,7 @@ export abstract class Game {
     channelId: string;
     players: Set<User>;
     createInteraction?: Interaction;
+    rootMessage?: Message;
     abstract events: Array<Event>;
     client: Client;
     abstract currentPhase: Phase;
@@ -31,7 +32,7 @@ export abstract class Phase {
 
 export class Timer {
     endTime: number;  // Unix timestamp at which the timer ends
-    timedMessages: Array<InteractionResponse>;
+    timedMessages: Array<Message>;
     timeout: NodeJS.Timeout;
     timeoutFunction: () => void;
     authorisedUsers: Set<User>;

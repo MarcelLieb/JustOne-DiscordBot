@@ -47,12 +47,12 @@ export class Timer {
         this.timeout = setTimeout(this.timeoutFunction, duration * 1000);
     }
 
-    speedUp(user:User) {
-        if (!this.authorisedUsers.has(user)) return;
+    speedUp(user:User): Boolean {
+        if (!this.authorisedUsers.has(user)) return false;
         this.authorisedUsers.delete(user);
         if (this.authorisedUsers.size === 0) {
             this.stop();
-            return;
+            return true;
         }
 
         this.endTime = Date.now() + this.timeLeft * 1000 * this.authorisedUsers.size / (this.authorisedUsers.size + 1);
@@ -65,6 +65,7 @@ export class Timer {
         });
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => this.timeoutFunction, (this.endTime - Date.now()) * 1000);
+        return true;
     }
 
     stop() {

@@ -53,13 +53,13 @@ export class Timer {
         if (!this.authorisedUsers.has(user)) return false;
         this.authorisedUsers.delete(user);
         if (this.authorisedUsers.size === 0) {
-            this.stop();
             this.timedMessages.forEach(async message => {
                 // TODO: Might need extra permissions
                 const oldContent = message.content;
                 const newContent = oldContent.replace(/<t:(\d+):R>/, 'now');
                 await message.edit({ content: newContent });
             });
+            this.stop();
             return true;
         }
 

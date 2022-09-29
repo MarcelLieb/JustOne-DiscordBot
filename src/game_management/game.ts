@@ -39,8 +39,8 @@ export class Timer {
         return Math.floor((this.endTime - Date.now()) / 1000);
     }
 
-    constructor(users: Set<User>, duration: number, timedMessages: Array<InteractionResponse>, timeOutfunction: () => void) {
-        this.authorisedUsers = users;
+    constructor(users: Set<User>, duration: number, timedMessages: Array<Message>, timeOutfunction: () => void) {
+        this.authorisedUsers = new Set(users);
         this.endTime = Date.now() + duration * 1000;
         this.timedMessages = timedMessages; 
         this.timeoutFunction = timeOutfunction;
@@ -52,16 +52,21 @@ export class Timer {
         this.authorisedUsers.delete(user);
         if (this.authorisedUsers.size === 0) {
             this.stop();
+            this.timedMessages.forEach(async message => {
+                // TODO: Might need extra permissions
+                const oldContent = message.content;
+                const newContent = oldContent.replace(/<t:(\d+):R>/, 'now');
+                await message.edit({ content: newContent });
+            });
             return true;
         }
 
         this.endTime = Date.now() + this.timeLeft * 1000 * this.authorisedUsers.size / (this.authorisedUsers.size + 1);
-        this.timedMessages.forEach(async reply => {
-            const message = await reply.awaitMessageComponent();
+        this.timedMessages.forEach(async message => {
             // TODO: Might need extra permissions
-            const oldContent = message.message.content;
+            const oldContent = message.content;
             const newContent = oldContent.replace(/<t:(\d+):R>/, `<t:${Math.floor(this.endTime / 1000)}:R>`);
-            message.update({ content: newContent });
+            await message.edit({ content: newContent });
         });
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => this.timeoutFunction, (this.endTime - Date.now()) * 1000);
@@ -69,6 +74,7 @@ export class Timer {
     }
 
     stop() {
+        this.endTime = Date.now();
         clearTimeout(this.timeout);
         this.timeoutFunction();
     }

@@ -28,6 +28,7 @@ export abstract class Phase {
     abstract events: Array<Event>;
     abstract joinable: boolean;
     abstract timer?: Timer;
+    abstract advancePhase(): void;
 }
 
 export class Timer {

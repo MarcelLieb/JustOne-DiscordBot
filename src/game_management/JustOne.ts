@@ -169,11 +169,11 @@ class GuessPhase extends Phase {
                     .setCustomId('JustOneHint')
                     .setPlaceholder('Enter your hint here')
                     .setMinLength(1).setMaxLength(100)
-                    .setLabel(`Enter your hint for guessing "${this.word}"`)
+                    .setLabel(`Enter your hint for guessing \"${this.word}\"`)
                     .setStyle(TextInputStyle.Short)
                     .setRequired(true),
                 );
-                const modal = new ModalBuilder().setTitle(`The word is "${this.word}"`).setCustomId("JustOneHintModal").addComponents(row);
+                const modal = new ModalBuilder().setTitle(`The word is \"${this.word}\"`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);
             }
         },
@@ -202,7 +202,7 @@ class GuessPhase extends Phase {
                         .setLabel("Edit Hint")
                         .setStyle(ButtonStyle.Secondary),
                 );
-                await interaction.reply({content: `Your Hint for "${this.word}" is "${hint}"`, components: [row]});
+                await interaction.reply({content: `Your Hint for \"${this.word}\" is \"${hint}"`, components: [row], ephemeral: true});
             }
         },
         {
@@ -233,12 +233,12 @@ class GuessPhase extends Phase {
                     .setCustomId('JustOneHint')
                     .setPlaceholder('Enter your hint here')
                     .setMinLength(1).setMaxLength(100)
-                    .setLabel(`Enter your hint for guessing "${this.word}"`)
+                    .setLabel(`Enter your hint for guessing \"${this.word}\"`)
                     .setStyle(TextInputStyle.Short)
                     .setValue(this.hints.get(interaction.user) ?? "")
                     .setRequired(true),
                 );
-                const modal = new ModalBuilder().setTitle(`The word is "${this.word}"`).setCustomId("JustOneHintModal").addComponents(row);
+                const modal = new ModalBuilder().setTitle(`The word is \"${this.word}\"`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);
             }
         }

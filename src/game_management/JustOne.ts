@@ -170,7 +170,8 @@ class GuessPhase extends Phase {
                     .setPlaceholder('Enter your hint here')
                     .setMinLength(1).setMaxLength(100)
                     .setLabel(`Enter your hint for guessing "${this.word}"`)
-                    .setStyle(TextInputStyle.Short),
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true),
                 );
                 const modal = new ModalBuilder().setTitle(`The word is "${this.word}"`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);
@@ -234,7 +235,8 @@ class GuessPhase extends Phase {
                     .setMinLength(1).setMaxLength(100)
                     .setLabel(`Enter your hint for guessing "${this.word}"`)
                     .setStyle(TextInputStyle.Short)
-                    .setValue(this.hints.get(interaction.user) ?? ""),
+                    .setValue(this.hints.get(interaction.user) ?? "")
+                    .setRequired(true),
                 );
                 const modal = new ModalBuilder().setTitle(`The word is "${this.word}"`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);

@@ -158,13 +158,13 @@ class GuessPhase extends Phase {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
                 if (interaction.customId !== "JustOneGiveHint") return;
+                // TODO: invert if after debugging
                 if (this.helper.has(interaction.user)) {
                     await interaction.reply({content: "You can't give a hint", ephemeral: true});
                     return;
                 }
 
                 const row = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-                    // TODO: Replace placeholder text
                     new TextInputBuilder()
                     .setCustomId('JustOneHint')
                     .setPlaceholder('Enter your hint here')
@@ -176,6 +176,38 @@ class GuessPhase extends Phase {
                 await interaction.showModal(modal);
             }
         },
+        {
+            name: "interactionCreate",
+            execute: async (interaction: Interaction) => {
+                if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
+                if (!interaction.isModalSubmit()) return;
+                if (interaction.customId !== "JustOneHintModal") return;
+                // TODO: invert if after debugging
+                if (this.helper.has(interaction.user)) {
+                    await interaction.reply({content: "You can't give a hint", ephemeral: true});
+                    return;
+                }
+                if (this.hints.filter(hint => hint.user === interaction.user).length > 0) {
+                    await interaction.reply({content: "You already gave a hint", ephemeral: true});
+                    return;
+                }
+                const hint = interaction.fields.getTextInputValue("JustOneHint");
+                this.hints.push({user: interaction.user, hint: hint});
+
+                const row = new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('JustOneHurryUp')
+                        .setLabel('Hurry Up!')
+                        .setStyle(ButtonStyle.Primary),
+                    new ButtonBuilder()
+                        .setCustomId("JustOneEditHint")
+                        .setLabel("Edit Hint")
+                        .setStyle(ButtonStyle.Secondary),
+                );
+                await interaction.reply({content: `Your Hint for "${this.word}" is "${hint}"`, components: [row]});
+            }
+        }
     ];
     joinable = false;
     timer?: Timer;

@@ -88,7 +88,12 @@ class StartPhase extends Phase {
                     interaction.reply({content: "You are not in this game", ephemeral: true});
                     return;
                 }
-                this.game.players.delete(interaction.user);
+                if (this.game.guessers.includes(interaction.user)) {
+                    this.game.guessers.splice(this.game.guessers.indexOf(interaction.user), 1);
+                }
+                if (this.game.guessnt.has(interaction.user)) {
+                    this.game.guessnt.delete(interaction.user);
+                }
                 this.timer?.authorisedUsers.delete(interaction.user);
                 interaction.reply({content: `${interaction.user.username} has left the game`, ephemeral: true});
             }

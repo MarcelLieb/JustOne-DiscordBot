@@ -149,7 +149,7 @@ class GuessPhase extends Phase {
     game: JustOne;
     guesser: User;
     helper: Set<User>;
-    hints: Array<Hint> = [];
+    hints: Map<User, string> = new Map();
     word: string;
     events = [
         {
@@ -169,10 +169,10 @@ class GuessPhase extends Phase {
                     .setCustomId('JustOneHint')
                     .setPlaceholder('Enter your hint here')
                     .setMinLength(1).setMaxLength(100)
-                    .setLabel(`Enter your hint for guessing ${this.word}`)
+                    .setLabel(`Enter your hint for guessing "${this.word}"`)
                     .setStyle(TextInputStyle.Short),
                 );
-                const modal = new ModalBuilder().setTitle(`The word is ${this.word}`).setCustomId("JustOneHintModal").addComponents(row);
+                const modal = new ModalBuilder().setTitle(`The word is "${this.word}"`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);
             }
         },
@@ -187,12 +187,8 @@ class GuessPhase extends Phase {
                     await interaction.reply({content: "You can't give a hint", ephemeral: true});
                     return;
                 }
-                if (this.hints.filter(hint => hint.user === interaction.user).length > 0) {
-                    await interaction.reply({content: "You already gave a hint", ephemeral: true});
-                    return;
-                }
                 const hint = interaction.fields.getTextInputValue("JustOneHint");
-                this.hints.push({user: interaction.user, hint: hint});
+                this.hints.set(interaction.user, hint);
 
                 const row = new ActionRowBuilder<ButtonBuilder>()
                 .addComponents(
@@ -221,6 +217,29 @@ class GuessPhase extends Phase {
                 interaction.reply({content: "Timer sped up!", ephemeral: true});
             }
         },
+        {
+            name: "interactionCreate",
+            execute: async (interaction: Interaction) => {
+                if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
+                if (!interaction.isButton()) return;
+                if (interaction.customId !== "JustOneEditHint") return;
+                if (!this.hints.has(interaction.user)) {
+                    interaction.reply({content: "You didn't give a hint", ephemeral: true});
+                    return;
+                }
+                const row = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+                    new TextInputBuilder()
+                    .setCustomId('JustOneHint')
+                    .setPlaceholder('Enter your hint here')
+                    .setMinLength(1).setMaxLength(100)
+                    .setLabel(`Enter your hint for guessing "${this.word}"`)
+                    .setStyle(TextInputStyle.Short)
+                    .setValue(this.hints.get(interaction.user) ?? ""),
+                );
+                const modal = new ModalBuilder().setTitle(`The word is "${this.word}"`).setCustomId("JustOneHintModal").addComponents(row);
+                await interaction.showModal(modal);
+            }
+        }
     ];
     joinable = false;
     timer: Timer;

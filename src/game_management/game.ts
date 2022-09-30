@@ -1,7 +1,7 @@
 import { Interaction, User, Client, Message } from "discord.js";
 
 export type Event = {
-    name: string,
+    type: string,
     execute: (interaction: Interaction) => Promise<void>
 };
 

@@ -32,7 +32,7 @@ class StartPhase extends Phase {
     game: JustOne;
     events = [
         {
-            name: "interactionCreate", 
+            type: "interactionCreate", 
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
@@ -67,7 +67,7 @@ class StartPhase extends Phase {
             }
         },
         {
-            name: "interactionCreate", 
+            type: "interactionCreate", 
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
@@ -80,7 +80,7 @@ class StartPhase extends Phase {
             }
         },
         {
-            name: "interactionCreate",
+            type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
@@ -106,7 +106,7 @@ class StartPhase extends Phase {
         this.game = game;
         this.client = game.client;
         this.events.forEach(event => {
-            this.client.on(event.name, event.execute);
+            this.client.on(event.type, event.execute);
         });
         if (!game.createInteraction?.isChatInputCommand()) return;
         const row = new ActionRowBuilder<ButtonBuilder>()
@@ -131,7 +131,7 @@ class StartPhase extends Phase {
 
     advancePhase(): void {
         this.events.forEach(event => {
-            this.client.off(event.name, event.execute);
+            this.client.off(event.type, event.execute);
         });
         if (this.game instanceof JustOne) {
             this.game.currentPhase = new GuessPhase(this.game);
@@ -148,7 +148,7 @@ class GuessPhase extends Phase {
     word: string;
     events = [
         {
-            name: "interactionCreate",
+            type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
@@ -173,7 +173,7 @@ class GuessPhase extends Phase {
             }
         },
         {
-            name: "interactionCreate",
+            type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isModalSubmit()) return;
@@ -201,7 +201,7 @@ class GuessPhase extends Phase {
             }
         },
         {
-            name: "interactionCreate", 
+            type: "interactionCreate", 
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
@@ -214,7 +214,7 @@ class GuessPhase extends Phase {
             }
         },
         {
-            name: "interactionCreate",
+            type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
@@ -248,7 +248,7 @@ class GuessPhase extends Phase {
         this.game = game;
         this.game.events = this.events;
         this.events.forEach(event => {
-            this.game.client.on(event.name, event.execute);
+            this.game.client.on(event.type, event.execute);
         });
         this.game.rootMessage?.edit({content: "Guess phase"});
         if (this.game.guessnt) {

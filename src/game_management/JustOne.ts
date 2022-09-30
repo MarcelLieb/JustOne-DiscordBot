@@ -207,10 +207,23 @@ class GuessPhase extends Phase {
                 );
                 await interaction.reply({content: `Your Hint for "${this.word}" is "${hint}"`, components: [row]});
             }
-        }
+        },
+        {
+            name: "interactionCreate", 
+            execute: async (interaction: Interaction) => {
+                if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
+                if (!interaction.isButton()) return;
+                if (interaction.customId !== "JustOneHurryUp") return;
+                if (!this.timer.speedUp(interaction.user)) {
+                    interaction.reply({content: "You already sped up the timer", ephemeral: true});
+                    return;
+                };
+                interaction.reply({content: "Timer sped up!", ephemeral: true});
+            }
+        },
     ];
     joinable = false;
-    timer?: Timer;
+    timer: Timer;
     advancePhase(): void {
         throw new Error("Method not implemented.");
     }

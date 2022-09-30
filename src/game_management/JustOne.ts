@@ -1,5 +1,6 @@
 import { Game, Phase, Event, Timer } from "./game.js";
 import { Client, Interaction, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import wordpools from "../Data/wordpools.json";
 
 export class JustOne extends Game {
 
@@ -148,6 +149,8 @@ class GuessPhase extends Phase {
     game: JustOne;
     guesser: User;
     helper: Set<User>;
+    hints: Array<Hint> = [];
+    word: string;
     events = [
         {
             name: "interactionCreate",
@@ -166,10 +169,10 @@ class GuessPhase extends Phase {
                     .setCustomId('JustOneHint')
                     .setPlaceholder('Enter your hint here')
                     .setMinLength(1).setMaxLength(100)
-                    .setLabel('Enter your hint for guessing placeholder')
+                    .setLabel(`Enter your hint for guessing ${this.word}`)
                     .setStyle(TextInputStyle.Short),
                 );
-                const modal = new ModalBuilder().setTitle("Give a hint").setCustomId("JustOneHintModal").addComponents(row);
+                const modal = new ModalBuilder().setTitle(`The word is ${this.word}`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);
             }
         },
@@ -199,6 +202,10 @@ class GuessPhase extends Phase {
         }
         this.helper = new Set(this.game.players);
         this.helper.delete(this.guesser);
+
+        // TODO: Make wordpool configurable
+        this.word = wordpools["classic_main"]["words"][Math.random() * wordpools["classic_main"]["words"].length | 0];
+
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
         this.timer = new Timer(new Set(this.helper), 180, [this.game.rootMessage], this.advancePhase.bind(this));
 

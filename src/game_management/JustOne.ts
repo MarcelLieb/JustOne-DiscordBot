@@ -32,6 +32,7 @@ class StartPhase extends Phase {
     game: JustOne;
     events = [
         {
+            name: "JustOneJoin",
             type: "interactionCreate", 
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
@@ -67,6 +68,7 @@ class StartPhase extends Phase {
             }
         },
         {
+            name: "JustOneLeave",
             type: "interactionCreate", 
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
@@ -80,6 +82,7 @@ class StartPhase extends Phase {
             }
         },
         {
+            name: "JustOneHurryUp",
             type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
@@ -134,12 +137,12 @@ class StartPhase extends Phase {
             this.client.off(event.type, event.execute);
         });
         if (this.game instanceof JustOne) {
-            this.game.currentPhase = new GuessPhase(this.game);
+            this.game.currentPhase = new GiveHintPhase(this.game);
         }
     }
 }
 
-class GuessPhase extends Phase {
+class GiveHintPhase extends Phase {
     name: string = "guess";
     game: JustOne;
     guesser: User;
@@ -148,6 +151,7 @@ class GuessPhase extends Phase {
     word: string;
     events = [
         {
+            name: "JustOneGiveHint",
             type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
@@ -173,6 +177,7 @@ class GuessPhase extends Phase {
             }
         },
         {
+            name: "JustOneHintSubmission",
             type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
@@ -201,6 +206,7 @@ class GuessPhase extends Phase {
             }
         },
         {
+            name: "JustOneHurryUp",
             type: "interactionCreate", 
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
@@ -214,6 +220,7 @@ class GuessPhase extends Phase {
             }
         },
         {
+            name: "JustOneEditHint",
             type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;

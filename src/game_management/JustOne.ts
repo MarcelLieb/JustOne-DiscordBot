@@ -139,11 +139,6 @@ class StartPhase extends Phase {
     }
 }
 
-type Hint = {
-    user: User;
-    hint: string;
-}
-
 class GuessPhase extends Phase {
     name: string = "guess";
     game: JustOne;

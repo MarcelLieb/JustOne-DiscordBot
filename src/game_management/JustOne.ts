@@ -363,7 +363,15 @@ class RemoveInvalidPhase extends Phase {
     menuInteractions: Map<User, SelectMenuInteraction> = new Map();
     timer: Timer;
     advancePhase(): void {
-        throw new Error("Method not implemented.");
+        this.events.forEach(event => {
+            this.game.client.off(event.type, event.execute);
+        });
+        this.state.hints.forEach((_, key) => {
+            if (this.invalid.has(key)) 
+                this.state.hints.delete(key);
+        });
+
+        this.game.currentPhase = new GuessPhase(this.game, this.state);
     }
     
     constructor(game: JustOne, interactions:Map<User, Interaction>, state: JustOneState) {
@@ -403,5 +411,91 @@ class RemoveInvalidPhase extends Phase {
         this.timer = new Timer(new Set(this.game.players), 90, [this.game.rootMessage], this.advancePhase.bind(this));
 
         this.game.rootMessage?.edit({content: `Please select all hints that are duplicate or similar to the word\n\nTime is over ${time(Math.floor(this.timer.endTime / 1000), "R")}`, components: []});
+    }
+}
+
+class GuessPhase extends Phase {
+    name = "guess";
+    events = [
+        {
+            name: "guessButton",
+            type: "interactionCreate",
+            execute: async (interaction: Interaction) => {
+                if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
+                if (!interaction.isButton()) return;
+                if (interaction.customId !== "JustOneGuessButton") return;
+                if (interaction.user.id !== this.state.guesser.id) {
+                    interaction.reply({content: "You are not the guesser", ephemeral: true});
+                    return;
+                }
+                const row = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+                    new TextInputBuilder()
+                    .setCustomId('JustOneGuess')
+                    .setPlaceholder('Enter your guess here')
+                    .setMinLength(1).setMaxLength(100)
+                    .setLabel(`Enter your guess`)
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true),
+                );
+
+                const modal = new ModalBuilder().setTitle(`Submit your guess`).setCustomId("JustOneGuessModal").addComponents(row);
+                interaction.showModal(modal);
+            }
+        },
+        {
+            name: "guess",
+            type: "interactionCreate",
+            execute: async (interaction: Interaction) => {
+                if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
+                if (!interaction.isModalSubmit()) return;
+                if (interaction.customId !== "JustOneGuessModal") return;
+                if (interaction.fields.getTextInputValue("JustOneGuess") === this.state.word) {
+                    this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word correctly\n\nThe word was ${this.state.word}`});
+                }
+                else {
+                    this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word incorrectly\n\nThe word was ${this.state.word}`});
+                }
+            }
+        }
+    ];
+    game: JustOne;
+    state: JustOneState;
+    joinable = false;
+    timer: Timer;
+    advancePhase(): void {
+        this.events.forEach(event => {
+            this.game.client.off(event.type, event.execute);
+        });
+        this.game.rootMessage?.edit({content: `${this.state.guesser.username} didn't guess in time!\n\nThe word was ${this.state.word}`});
+        this.game.currentPhase = new StartPhase(this.game);
+    }
+    
+    constructor(game: JustOne, state: JustOneState) {
+        super();
+        this.game = game;
+        this.game.events = this.events;
+        this.events.forEach(event => {
+            this.game.client.on(event.type, event.execute);
+        });
+        this.state = state;
+
+        if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
+
+        this.timer = new Timer(new Set(this.game.players), 300, [this.game.rootMessage], this.advancePhase.bind(this));
+
+        let message = `It is ${this.state.guesser.username}'s turn to guess\n\n`;
+        this.state.hints.forEach((hint, user) => {
+            message += `${user.username}: ${hint}\n`;
+        });
+        message += `\nTime runs out ${time(Math.floor(this.timer.endTime / 1000), "R")}`;
+
+        const buttons = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('JustOneGuessButton')
+                    .setLabel('Guess')
+                    .setStyle(ButtonStyle.Primary));
+
+        this.game.rootMessage?.edit({content: message, components: [buttons]});
     }
 }

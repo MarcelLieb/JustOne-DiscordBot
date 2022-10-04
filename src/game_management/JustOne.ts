@@ -1,5 +1,5 @@
 import { Game, Phase, Event, Timer } from "./game.js";
-import { Client, Interaction, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, SelectMenuBuilder } from "discord.js";
+import { Client, Interaction, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, SelectMenuBuilder, SelectMenuInteraction } from "discord.js";
 import wordpools from "../Data/wordpools.json";
 
 export class JustOne extends Game {
@@ -314,18 +314,39 @@ class RemoveInvalidPhase extends Phase {
                 if (!interaction.isSelectMenu()) return;
                 if (interaction.customId !== "JustOneInvalid") return;
                 interaction.values.forEach(value => {
-                    this.invalid.set(value, (this.invalid.get(value) ?? 0) + 1)
+                    const user = Array.from(this.game.players).find(user => user.id === value);
+                    if (user) {
+                        this.invalid.set(user, (this.invalid.get(user) ?? 0) + 1)
+                    }
                 });
-                await interaction.update({content: `Invalid hints have been removed`, components: [], fetchReply: true});
+
+                this.menuInteractions.set(interaction.user, interaction);
+
+                let message = "As invalid marked:\n";
+                this.invalid.forEach((value, key) => {
+                    message += `\t${this.state.hints.get(key)}: ${value}\n`;
+                });
+
+                const buttons = new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('JustOneHurryUp')
+                        .setLabel('Hurry Up!')
+                        .setStyle(ButtonStyle.Primary));
+
+                this.menuInteractions.forEach(interaction => {
+                    interaction.update({content: message, components: [buttons]});
+                });
             }
         }
     ];
-    invalid: Map<string, number> = new Map();
+    invalid: Map<User, number> = new Map();
     joinable = false;
     game: JustOne;
     state: JustOneState;
     interactions: Map<User, Interaction>;
-    timer?: Timer | undefined;
+    menuInteractions: Map<User, SelectMenuInteraction> = new Map();
+    timer: Timer;
     advancePhase(): void {
         throw new Error("Method not implemented.");
     }
@@ -351,15 +372,21 @@ class RemoveInvalidPhase extends Phase {
             this.state.hints.forEach((hint, user) => {
                 selectMenu.addOptions({label: hint, description: `${user.username}'s hint`, value: user.id});
             });
-            const row = new ActionRowBuilder<SelectMenuBuilder>()
+            const select = new ActionRowBuilder<SelectMenuBuilder>()
 			.addComponents(selectMenu);
-            interaction.followUp({content: `Select all hints that are duplicate or similar to \"${this.state.word}\"`, ephemeral: true, components: [row]});
+            const buttons = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('JustOneHurryUp')
+                    .setLabel('Hurry Up!')
+                    .setStyle(ButtonStyle.Primary));
+            interaction.followUp({content: `Select all hints that are duplicate or similar to \"${this.state.word}\"`, ephemeral: true, components: [select, buttons]});
         });
 
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
 
         this.timer = new Timer(new Set(this.game.players), 90, [this.game.rootMessage], this.advancePhase.bind(this));
 
-        this.game.rootMessage?.edit({content: `Please select all hints that are duplicate or similar to the word\n\nTime is over ${time(this.timer.endTime, "R")}`, components: []});
+        this.game.rootMessage?.edit({content: `Please select all hints that are duplicate or similar to the word\n\nTime is over ${time(Math.floor(this.timer.endTime / 1000), "R")}`, components: []});
     }
 }

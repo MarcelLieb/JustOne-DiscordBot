@@ -300,7 +300,7 @@ class GiveHintPhase extends Phase {
                     .setLabel('Give a hint!')
                     .setStyle(ButtonStyle.Primary),
             );
-        this.game.rootMessage?.edit({content: `It is ${this.guesser.username}'s turn to guess\n\nGuessing time is over ${time(Math.floor(this.timer.endTime / 1000), 'R')}`, components: [row]});
+        this.game.rootMessage?.edit({content: `It is ${this.guesser.username}'s turn to guess\n\nHint Submission is over ${time(Math.floor(this.timer.endTime / 1000), 'R')}`, components: [row]});
     }
 }
 

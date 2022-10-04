@@ -451,10 +451,13 @@ class GuessPhase extends Phase {
                 if (interaction.customId !== "JustOneGuessModal") return;
                 if (interaction.fields.getTextInputValue("JustOneGuess") === this.state.word) {
                     this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word correctly\n\nThe word was ${this.state.word}`});
+                    interaction.reply({content: "You guessed the word correctly", ephemeral: true});
                 }
                 else {
                     this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word incorrectly\n\nThe word was ${this.state.word}`});
+                    interaction.reply({content: "You guessed the word incorrectly", ephemeral: true});
                 }
+                this.timer.destroy();
             }
         }
     ];

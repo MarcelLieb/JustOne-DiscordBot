@@ -316,7 +316,6 @@ class RemoveInvalidPhase extends Phase {
                 interaction.values.forEach(value => {
                     this.invalid.set(value, (this.invalid.get(value) ?? 0) + 1)
                 });
-                console.log(this.invalid);
                 await interaction.update({content: `Invalid hints have been removed`, components: [], fetchReply: true});
             }
         }

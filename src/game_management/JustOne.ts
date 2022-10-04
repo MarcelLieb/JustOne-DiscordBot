@@ -450,11 +450,11 @@ class GuessPhase extends Phase {
                 if (!interaction.isModalSubmit()) return;
                 if (interaction.customId !== "JustOneGuessModal") return;
                 if (interaction.fields.getTextInputValue("JustOneGuess") === this.state.word) {
-                    this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word correctly\n\nThe word was ${this.state.word}`});
+                    this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word correctly\n\nThe word was ${this.state.word}`, components: []});
                     interaction.reply({content: "You guessed the word correctly", ephemeral: true});
                 }
                 else {
-                    this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word incorrectly\n\nThe word was ${this.state.word}`});
+                    this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word incorrectly\n\nThe word was ${this.state.word}`, components: []});
                     interaction.reply({content: "You guessed the word incorrectly", ephemeral: true});
                 }
                 this.timer.destroy();
@@ -469,7 +469,7 @@ class GuessPhase extends Phase {
         this.events.forEach(event => {
             this.game.client.off(event.type, event.execute);
         });
-        this.game.rootMessage?.edit({content: `${this.state.guesser.username} didn't guess in time!\n\nThe word was ${this.state.word}`});
+        this.game.rootMessage?.edit({content: `${this.state.guesser.username} didn't guess in time!\n\nThe word was ${this.state.word}`, components: []});
         this.game.currentPhase = new StartPhase(this.game);
     }
     

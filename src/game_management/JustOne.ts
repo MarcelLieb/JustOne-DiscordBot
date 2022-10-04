@@ -74,7 +74,7 @@ class StartPhase extends Phase {
             }
         },
         {
-            name: "JustOneLeave",
+            name: "JustOneHurryUp",
             type: "interactionCreate", 
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
@@ -88,7 +88,7 @@ class StartPhase extends Phase {
             }
         },
         {
-            name: "JustOneHurryUp",
+            name: "JustOneLeave",
             type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;

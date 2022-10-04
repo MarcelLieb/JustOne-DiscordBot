@@ -1,5 +1,5 @@
 import { Game, Phase, Event, Timer } from "./game.js";
-import { Client, Interaction, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { Client, Interaction, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, SelectMenuBuilder } from "discord.js";
 import wordpools from "../Data/wordpools.json";
 
 export class JustOne extends Game {
@@ -155,6 +155,7 @@ class GiveHintPhase extends Phase {
     guesser: User;
     helper: Set<User>;
     hints: Map<User, string> = new Map();
+    interactions: Map<User, Interaction> = new Map();
     word: string;
     events = [
         {
@@ -181,6 +182,7 @@ class GiveHintPhase extends Phase {
                 );
                 const modal = new ModalBuilder().setTitle(`The word is \"${this.word}\"`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);
+                this.interactions.set(interaction.user, interaction);
             }
         },
         {
@@ -256,7 +258,12 @@ class GiveHintPhase extends Phase {
     joinable = false;
     timer: Timer;
     advancePhase(): void {
-        throw new Error("Method not implemented.");
+        this.events.forEach(event => {
+            this.game.client.off(event.type, event.execute);
+        });
+        if (this.game instanceof JustOne) {
+            this.game.currentPhase = new RemoveInvalidPhase(this.game, this.interactions, {word: this.word, hints: this.hints, guesser: this.guesser});
+        }
     }
     constructor(game: JustOne) {
         super();
@@ -265,7 +272,7 @@ class GiveHintPhase extends Phase {
         this.events.forEach(event => {
             this.game.client.on(event.type, event.execute);
         });
-        this.game.rootMessage?.edit({content: "Guess phase"});
+
         if (this.game.guessnt) {
             this.guesser = this.game.guessnt.values().next().value;
             this.game.guessers.push(this.guesser);
@@ -283,6 +290,7 @@ class GiveHintPhase extends Phase {
         this.word = wordpools["classic_main"]["words"][Math.random() * wordpools["classic_main"]["words"].length | 0];
 
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
+
         this.timer = new Timer(new Set(this.helper), 180, [this.game.rootMessage], this.advancePhase.bind(this));
 
         const row = new ActionRowBuilder<ButtonBuilder>()
@@ -293,5 +301,66 @@ class GiveHintPhase extends Phase {
                     .setStyle(ButtonStyle.Primary),
             );
         this.game.rootMessage?.edit({content: `It is ${this.guesser.username}'s turn to guess\n\nGuessing time is over ${time(Math.floor(this.timer.endTime / 1000), 'R')}`, components: [row]});
+    }
+}
+
+class RemoveInvalidPhase extends Phase {
+    name = "removeInvalid";
+    events = [
+        {
+            type: "interactionCreate",
+            execute: async (interaction: Interaction) => {
+                if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
+                if (!interaction.isSelectMenu()) return;
+                if (interaction.customId !== "JustOneInvalid") return;
+                interaction.values.forEach(value => {
+                    this.invalid.set(value, (this.invalid.get(value) ?? 0) + 1)
+                });
+                console.log(this.invalid);
+                await interaction.update({content: `Invalid hints have been removed`, components: [], fetchReply: true});
+            }
+        }
+    ];
+    invalid: Map<string, number> = new Map();
+    joinable = false;
+    game: JustOne;
+    state: JustOneState;
+    interactions: Map<User, Interaction>;
+    timer?: Timer | undefined;
+    advancePhase(): void {
+        throw new Error("Method not implemented.");
+    }
+    
+    constructor(game: JustOne, interactions:Map<User, Interaction>, state: JustOneState) {
+        super();
+        this.state = state;
+        this.interactions = interactions;
+        this.game = game;
+        this.game.events = this.events;
+        this.events.forEach(event => {
+            this.game.client.on(event.type, event.execute);
+        });
+
+        this.interactions.forEach((interaction, _) => {
+            if (!interaction.isButton()) return;
+
+            const selectMenu = new SelectMenuBuilder()
+                .setCustomId("JustOneInvalid")
+                .setPlaceholder("Select the invalid hints")
+                .setMinValues(0)
+                .setMaxValues(this.state.hints.size)
+            this.state.hints.forEach((hint, user) => {
+                selectMenu.addOptions({label: hint, description: `${user.username}'s hint`, value: user.id});
+            });
+            const row = new ActionRowBuilder<SelectMenuBuilder>()
+			.addComponents(selectMenu);
+            interaction.followUp({content: `Select all hints that are duplicate or similar to \"${this.state.word}\"`, ephemeral: true, components: [row]});
+        });
+
+        if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
+
+        this.timer = new Timer(new Set(this.game.players), 90, [this.game.rootMessage], this.advancePhase.bind(this));
+
+        this.game.rootMessage?.edit({content: `Please select all hints that are duplicate or similar to the word\n\nTime is over ${time(this.timer.endTime)}`, components: []});
     }
 }

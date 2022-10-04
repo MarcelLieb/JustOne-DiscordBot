@@ -24,6 +24,12 @@ export class JustOne extends Game {
 
 }
 
+type JustOneState = {
+    word: string,
+    guesser: User,
+    hints: Map<User, string>,
+}
+
 class StartPhase extends Phase {
     name = "start";
     joinable = true;

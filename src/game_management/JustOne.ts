@@ -84,7 +84,8 @@ class StartPhase extends Phase {
                     interaction.reply({content: "You already sped up the timer", ephemeral: true});
                     return;
                 };
-                interaction.reply({content: "Timer sped up!", ephemeral: true});
+                await interaction.deferReply();
+                interaction.deleteReply();
             }
         },
         {
@@ -222,7 +223,8 @@ class GiveHintPhase extends Phase {
                     interaction.reply({content: "You already sped up the timer", ephemeral: true});
                     return;
                 };
-                interaction.reply({content: "Timer sped up!", ephemeral: true});
+                await interaction.deferReply();
+                interaction.deleteReply();
             }
         },
         {

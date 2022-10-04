@@ -322,7 +322,7 @@ class RemoveInvalidPhase extends Phase {
 
                 this.menuInteractions.set(interaction.user, interaction);
 
-                let message = "As invalid marked:\n";
+                let message = "Marked as invalid:\n";
                 this.invalid.forEach((value, key) => {
                     message += `\t${this.state.hints.get(key)}: ${value}\n`;
                 });

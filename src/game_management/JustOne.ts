@@ -361,6 +361,6 @@ class RemoveInvalidPhase extends Phase {
 
         this.timer = new Timer(new Set(this.game.players), 90, [this.game.rootMessage], this.advancePhase.bind(this));
 
-        this.game.rootMessage?.edit({content: `Please select all hints that are duplicate or similar to the word\n\nTime is over ${time(this.timer.endTime)}`, components: []});
+        this.game.rootMessage?.edit({content: `Please select all hints that are duplicate or similar to the word\n\nTime is over ${time(this.timer.endTime, "R")}`, components: []});
     }
 }

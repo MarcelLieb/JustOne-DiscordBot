@@ -338,7 +338,22 @@ class RemoveInvalidPhase extends Phase {
                     interaction.update({content: message, components: [buttons]});
                 });
             }
-        }
+        },
+        {
+            name: "JustOneHurryUp",
+            type: "interactionCreate", 
+            execute: async (interaction: Interaction) => {
+                if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
+                if (!interaction.isButton()) return;
+                if (interaction.customId !== "JustOneHurryUp") return;
+                if (!this.timer.speedUp(interaction.user)) {
+                    interaction.reply({content: "You already sped up the timer", ephemeral: true});
+                    return;
+                };
+                await interaction.deferReply();
+                interaction.deleteReply();
+            }
+        },
     ];
     invalid: Map<User, number> = new Map();
     joinable = false;

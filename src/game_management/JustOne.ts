@@ -94,8 +94,19 @@ class StartPhase extends Phase {
                     interaction.reply({content: "You already sped up the timer", ephemeral: true});
                     return;
                 };
-                await interaction.deferReply();
-                interaction.deleteReply();
+                const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    new ButtonBuilder()
+                    .setCustomId('JustOneHurryUp')
+                    .setLabel('Hurry up!')
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(true),
+                    new ButtonBuilder()
+                    .setCustomId('JustOneLeave')
+                    .setLabel('Leave')
+                    .setStyle(ButtonStyle.Danger),
+                )
+                const update = interaction.message.content + `\nTimer sped up!`;
+                interaction.update({content: update, components: [row]});
             }
         },
         {

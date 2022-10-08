@@ -49,7 +49,17 @@ class StartPhase extends Phase {
                     return;
                 }
                 if (this.game.players.has(interaction.user)) {
-                    interaction.reply({content: "You are already in this game", ephemeral: true});
+                    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                        new ButtonBuilder()
+                        .setCustomId('JustOneHurryUp')
+                        .setLabel('Hurry up!')
+                        .setStyle(ButtonStyle.Primary),
+                        new ButtonBuilder()
+                        .setCustomId('JustOneLeave')
+                        .setLabel('Leave')
+                        .setStyle(ButtonStyle.Danger),
+                    )
+                    interaction.reply({content: "You are already in this game", ephemeral: true, components: [row]});
                     return;
                 }
 

@@ -254,8 +254,20 @@ class GiveHintPhase extends Phase {
                     interaction.reply({content: "You already sped up the timer", ephemeral: true});
                     return;
                 };
-                await interaction.deferReply();
-                interaction.deleteReply();
+                const row = new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('JustOneHurryUp')
+                        .setLabel('Hurry Up!')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setCustomId("JustOneEditHint")
+                        .setLabel("Edit Hint")
+                        .setStyle(ButtonStyle.Secondary),
+                );
+                const update = interaction.message.content + `\nTimer sped up!`;
+                interaction.update({content: update, components: [row]});
             }
         },
         {
@@ -379,8 +391,15 @@ class RemoveInvalidPhase extends Phase {
                     interaction.reply({content: "You already sped up the timer", ephemeral: true});
                     return;
                 };
-                await interaction.deferReply();
-                interaction.deleteReply();
+                const buttons = new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('JustOneHurryUp')
+                        .setLabel('Hurry Up!')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(true));
+                const update = interaction.message.content + `\nTimer sped up!`;
+                interaction.update({content: update, components: [buttons]});
             }
         },
     ];

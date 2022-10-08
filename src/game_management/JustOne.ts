@@ -149,7 +149,7 @@ class StartPhase extends Phase {
 			);
 
         if (game.createInteraction.replied) {
-            game.createInteraction.followUp({content: `Starting a new Round of Just One\nThe game will start ${time(Math.floor(Date.now() / 1000) + 150, 'R')}`, components: [row], fetchReply: true})
+            game.rootMessage?.reply({content: `Starting a new Round of Just One\nThe game will start ${time(Math.floor(Date.now() / 1000) + 150, 'R')}`, components: [row]})
             .then(message => {
                 this.timer = new Timer(game.players, 150, [message], this.advancePhase.bind(this));
                 this.game.rootMessage = message;
@@ -349,6 +349,7 @@ class RemoveInvalidPhase extends Phase {
     name = "removeInvalid";
     events = [
         {
+            name: "JustOneInvalid",
             type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;

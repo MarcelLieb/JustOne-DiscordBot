@@ -148,16 +148,24 @@ class StartPhase extends Phase {
 					.setStyle(ButtonStyle.Primary),
 			);
 
-        const reply = game.createInteraction.reply(
+        if (game.createInteraction.replied) {
+            game.createInteraction.followUp({content: `Starting a new Round of Just One\nThe game will start ${time(Math.floor(Date.now() / 1000) + 150, 'R')}`, components: [row], fetchReply: true})
+            .then(message => {
+                this.timer = new Timer(game.players, 150, [message], this.advancePhase.bind(this));
+                this.game.rootMessage = message;
+            });
+        }
+        else {
+            game.createInteraction.reply(
             {
                 content: `Welcome to Just One!\nThe game will start ${time(Math.floor(Date.now() / 1000) + 300, 'R')}!`, 
                 components: [row], 
                 fetchReply: true
-            }
-        ).then(reply => {
-            this.timer = new Timer(game.players, 300, [reply], this.advancePhase.bind(this));
-            this.game.rootMessage = reply;
-        });
+            }).then(reply => {
+                this.timer = new Timer(game.players, 300, [reply], this.advancePhase.bind(this));
+                this.game.rootMessage = reply;
+            });
+        }
     }
 
     advancePhase(): void {
@@ -470,7 +478,8 @@ class GuessPhase extends Phase {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isModalSubmit()) return;
                 if (interaction.customId !== "JustOneGuessModal") return;
-                if (interaction.fields.getTextInputValue("JustOneGuess") === this.state.word) {
+                this.guess = interaction.fields.getTextInputValue("JustOneGuess");
+                if (this.guess.toLowerCase() === this.state.word.toLowerCase()) {
                     this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word correctly\n\nThe word was ${this.state.word}`, components: []});
                     interaction.reply({content: "You guessed the word correctly", ephemeral: true});
                 }
@@ -478,7 +487,7 @@ class GuessPhase extends Phase {
                     this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word incorrectly\n\nThe word was ${this.state.word}`, components: []});
                     interaction.reply({content: "You guessed the word incorrectly", ephemeral: true});
                 }
-                this.timer.destroy();
+                this.timer.stop();
             }
         }
     ];
@@ -486,11 +495,14 @@ class GuessPhase extends Phase {
     state: JustOneState;
     joinable = false;
     timer: Timer;
+    guess?: string = undefined;
     advancePhase(): void {
         this.events.forEach(event => {
             this.game.client.off(event.type, event.execute);
         });
-        this.game.rootMessage?.edit({content: `${this.state.guesser.username} didn't guess in time!\n\nThe word was ${this.state.word}`, components: []});
+        if (this.guess === undefined) {
+            this.game.rootMessage?.edit({content: `${this.state.guesser.username} didn't guess in time!\n\nThe word was ${this.state.word}`, components: []});
+        }
         this.game.currentPhase = new StartPhase(this.game);
     }
     
@@ -507,6 +519,7 @@ class GuessPhase extends Phase {
 
         this.timer = new Timer(new Set(this.game.players), 300, [this.game.rootMessage], this.advancePhase.bind(this));
 
+        // TODO: Improve Message Styling
         let message = `It is ${this.state.guesser.username}'s turn to guess\n\n`;
         this.state.hints.forEach((hint, user) => {
             message += `${user.username}: ${hint}\n`;

@@ -302,7 +302,7 @@ class GiveHintPhase extends Phase {
             this.game.client.on(event.type, event.execute);
         });
 
-        if (this.game.guessnt) {
+        if (this.game.guessnt.size > 0) {
             this.guesser = this.game.guessnt.values().next().value;
             this.game.guessers.push(this.guesser);
             this.game.guessnt.delete(this.guesser);

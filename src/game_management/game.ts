@@ -1,4 +1,4 @@
-import { Interaction, User, Client, Message } from "discord.js";
+import { Interaction, User, Client, Message, EmbedBuilder } from "discord.js";
 
 export type Event = {
     type: string,
@@ -66,8 +66,11 @@ export class Timer {
         this.timedMessages.forEach(async message => {
             // TODO: Might need extra permissions
             const oldContent = message.content;
+            const embeds = message.embeds.map(embed => {
+                return EmbedBuilder.from(embed).setDescription(embed.description?.replace(/<t:(\d+):R>/, `<t:${Math.floor(this.endTime / 1000)}:R>`) ?? '');
+            });
             const newContent = oldContent.replace(/<t:(\d+):R>/, `<t:${Math.floor(this.endTime / 1000)}:R>`);
-            await message.edit({ content: newContent });
+            await message.edit({ content: newContent, embeds: embeds });
         });
         clearTimeout(this.timeout);
         this.timeout = setTimeout(() => this.timeoutFunction, (this.endTime - Date.now()) * 1000);

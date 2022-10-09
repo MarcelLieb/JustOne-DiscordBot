@@ -246,7 +246,7 @@ class GiveHintPhase extends Phase {
             );
         const embed = new EmbedBuilder()
             .setAuthor({name: 'Just One', iconURL: (this.guesser.avatarURL() ?? undefined)})
-            .setDescription(`${bold("It's " + userMention(this.guesser.id) + "'s turn to guess!")}\n\nSubmit your ${bold("Hints")} now!\n\nThe game will start ${time(Math.floor(Date.now() / 1000) + 180, 'R')}`)
+            .setDescription(`${bold("It's " + userMention(this.guesser.id) + "'s turn to guess!")}\n\nSubmit your ${bold("Hints")} now!\n\nHint submission is over ${time(Math.floor(Date.now() / 1000) + 180, 'R')}`)
             .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
             .setTimestamp()
             .setColor(0x2f3136);

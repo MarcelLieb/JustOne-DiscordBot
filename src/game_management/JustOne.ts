@@ -1,5 +1,5 @@
 import { Game, Phase, Event, Timer } from "./game.js";
-import { Client, Interaction, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, SelectMenuBuilder, SelectMenuInteraction } from "discord.js";
+import { Client, Interaction, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, SelectMenuBuilder, SelectMenuInteraction, EmbedBuilder, userMention, bold } from "discord.js";
 import wordpools from "../Data/wordpools.json";
 
 export class JustOne extends Game {
@@ -54,16 +54,35 @@ class StartPhase extends Phase {
 			);
 
         if (game.createInteraction.replied) {
-            game.rootMessage?.reply({content: `Starting a new Round of Just One\nThe game will start ${time(Math.floor(Date.now() / 1000) + 150, 'R')}`, components: [row]})
+            const embed = new EmbedBuilder()
+                .setAuthor({name: 'Just One'})
+                .setTitle('Starting a new Round of Just One!')
+                .setDescription(`The game will start ${time(Math.floor(Date.now() / 1000) + 150, 'R')}`)
+                .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
+                .setTimestamp()
+                .setColor(0x2f3136);
+            const leave = new ButtonBuilder()
+                .setCustomId('JustOneLeave')
+                .setLabel('Leave')
+                .setStyle(ButtonStyle.Danger);
+            row.addComponents(leave);
+            game.rootMessage?.reply({embeds: [embed], components: [row]})
             .then(message => {
                 this.timer = new Timer(game.players, 150, [message], this.advancePhase.bind(this));
                 this.game.rootMessage = message;
             });
         }
         else {
+            const embed = new EmbedBuilder()
+                .setAuthor({name: 'Just One'})
+                .setTitle('Welcome to Just One!')
+                .setDescription(`The game will start ${time(Math.floor(Date.now() / 1000) + 300, 'R')}`)
+                .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
+                .setTimestamp()
+                .setColor(0x2f3136);
             game.createInteraction.reply(
             {
-                content: `Welcome to Just One!\nThe game will start ${time(Math.floor(Date.now() / 1000) + 300, 'R')}!`, 
+                embeds: [embed], 
                 components: [row], 
                 fetchReply: true
             }).then(reply => {
@@ -225,7 +244,13 @@ class GiveHintPhase extends Phase {
                     .setLabel('Give a hint!')
                     .setStyle(ButtonStyle.Primary),
             );
-        this.game.rootMessage?.edit({content: `It is ${this.guesser.username}'s turn to guess\n\nHint Submission is over ${time(Math.floor(this.timer.endTime / 1000), 'R')}`, components: [row]});
+        const embed = new EmbedBuilder()
+            .setAuthor({name: 'Just One', iconURL: (this.guesser.avatarURL() ?? undefined)})
+            .setDescription(`${bold("It's " + userMention(this.guesser.id) + "'s turn to guess!")}\n\nSubmit your ${bold("Hints")} now!\n\nThe game will start ${time(Math.floor(Date.now() / 1000) + 180, 'R')}`)
+            .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
+            .setTimestamp()
+            .setColor(0x2f3136);
+        this.game.rootMessage?.edit({embeds: [embed], components: [row]});
     }
 
     events = [
@@ -394,8 +419,14 @@ class RemoveInvalidPhase extends Phase {
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
 
         this.timer = new Timer(new Set(this.game.players), 90, [this.game.rootMessage], this.advancePhase.bind(this));
-
-        this.game.rootMessage?.edit({content: `Please select all hints that are duplicate or similar to the word\n\nTime is over ${time(Math.floor(this.timer.endTime / 1000), "R")}`, components: []});
+        const embed = new EmbedBuilder()
+            .setAuthor({name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined)})
+            .setTitle(`${this.state.guesser.username} is the guesser`)
+            .setDescription(`Please select all hints that are duplicate or similar to the word.\nPress \"Hurry up!\" if all are valid.\n\nTime is over ${time(Math.floor(this.timer.endTime / 1000), "R")}`)
+            .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
+            .setTimestamp()
+            .setColor(0x2f3136);
+        this.game.rootMessage?.edit({embeds: [embed], components: []});
     }
 
     events = [
@@ -503,8 +534,18 @@ class GuessPhase extends Phase {
                     .setCustomId('JustOneGuessButton')
                     .setLabel('Guess')
                     .setStyle(ButtonStyle.Primary));
-
-        this.game.rootMessage?.edit({content: message, components: [buttons]});
+        
+        const embed = new EmbedBuilder()
+            .setAuthor({name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined)})
+            .setTitle(`Time to guess!`)
+            .setDescription(`${userMention(this.state.guesser.id)} can now guess the word!\n\nYour time runs out ${time(Math.floor(this.timer.endTime / 1000), "R")}\n\n\n${bold("Your hints are:")}`)
+            .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
+            .setTimestamp()
+            .setColor(0x2f3136);
+        this.state.hints.forEach((hint, user) => {
+            embed.addFields({name: hint, value: userMention(user.id), inline: true});
+        });
+        this.game.rootMessage?.edit({embeds: [embed], components: [buttons]});
     }
 
     events = [

@@ -56,7 +56,10 @@ export class Timer {
                 // TODO: Might need extra permissions
                 const oldContent = message.content;
                 const newContent = oldContent.replace(/<t:(\d+):R>/, 'now');
-                await message.edit({ content: newContent });
+                const embeds = message.embeds.map(embed => {
+                    return EmbedBuilder.from(embed).setDescription(embed.description?.replace(/<t:(\d+):R>/, 'now') ?? '');
+                });
+                await message.edit({ content: newContent, embeds: embeds });
             });
             this.stop();
             return true;

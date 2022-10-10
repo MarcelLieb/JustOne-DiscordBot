@@ -1,7 +1,7 @@
 {
   "name": "just-one",
   "version": "1.0.0",
-  "description": "A Discord Bot for the game to play the game Just One in Discord Chats",
+  "description": "A Discord Bot to play the game Just One in Textchats using the interaction API",
   "main": "./src/index.js",
   "scripts": {
     "test": "exit 0"

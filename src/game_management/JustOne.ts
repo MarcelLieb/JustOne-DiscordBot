@@ -5,7 +5,7 @@ import wordpools from "../Data/wordpools.json";
 export class JustOne extends Game {
 
     currentPhase: Phase;
-    events: Array<Event>;
+    events: Array<Event> = [];
     guessers: Array<User> = [];
     guessnt: Set<User>;
     lastGuesser?: User;
@@ -18,7 +18,6 @@ export class JustOne extends Game {
     constructor(client: Client, guildId: string, channelId: string, players: Set<User>, createInteraction?: Interaction) {
         super(client, guildId, channelId, createInteraction);
         this.currentPhase = new StartPhase(this);
-        this.events = this.currentPhase.events;
         this.guessnt = new Set(players);
     }
 
@@ -205,7 +204,7 @@ class StartPhase extends Phase {
         });
         const oldEvents = new Set(this.events);
         this.game.events = this.game.events.filter(event => !oldEvents.has(event));
-        
+
         if (this.game instanceof JustOne) {
             this.game.currentPhase = new GiveHintPhase(this.game);
         }

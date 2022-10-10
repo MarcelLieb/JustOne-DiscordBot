@@ -10,6 +10,7 @@ if (!token || !clientId || !guildId) {
 
 const commands = [
 	new SlashCommandBuilder().setName('start').setDescription('Start a new JustOne Game').setDMPermission(false),
+	new SlashCommandBuilder().setName('stop').setDescription('Stops the current game in this channel').setDMPermission(false),
 ]
 	.map(command => command.toJSON());
 

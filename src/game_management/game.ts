@@ -20,6 +20,8 @@ export abstract class Game {
         this.channelId = channelId;
         this.createInteraction = createInteraction;
     }
+
+    abstract stop(): Promise<void>;
 }
 
 export abstract class Phase {

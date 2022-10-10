@@ -22,6 +22,16 @@ export class JustOne extends Game {
         this.guessnt = new Set(players);
     }
 
+    async stop() {
+        this.currentPhase.timer?.destroy();
+        await this.rootMessage?.edit({ content: `This game has been aborted\n\nThis message will destroy itself ${time(Math.floor(Date.now() / 1000) + 10, 'R')}`, embeds: [], components: [] });
+        new Timer(new Set([]), 10, [this.rootMessage!], () => {
+            this.rootMessage?.edit({ content: bold("Boom"), embeds: [], components: [] });
+            setTimeout(() => {
+                this.rootMessage?.delete();
+            }, 1000);
+        });
+    }
 }
 
 type JustOneState = {

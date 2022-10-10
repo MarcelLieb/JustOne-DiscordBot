@@ -30,6 +30,16 @@ client.on('interactionCreate', async interaction => {
 		const game = new JustOne(client, interaction.guildId, interaction.channelId, new Set(), interaction);
 		games.push(game);
 	}
+	if (commandName === 'stop') {
+		const game = games.find(game => game.guildId === interaction.guildId && game.channelId === interaction.channelId);
+		if (game) {
+			await game.stop();
+			games.splice(games.indexOf(game), 1);
+			interaction.reply({ content: 'Game stopped', ephemeral: true });
+			return;
+		}
+		interaction.reply({ content: 'There is no game in this channel', ephemeral: true });
+	}
 });
 
 // Login to Discord with your client's token

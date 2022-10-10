@@ -1,5 +1,5 @@
 import { Game, Phase, Event, Timer } from "./game.js";
-import { Client, Interaction, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, SelectMenuBuilder, SelectMenuInteraction, EmbedBuilder, userMention, bold } from "discord.js";
+import { Client, Interaction, User, time, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle, SelectMenuBuilder, SelectMenuInteraction, EmbedBuilder, userMention, bold, italic } from "discord.js";
 import wordpools from "../Data/wordpools.json";
 
 export class JustOne extends Game {
@@ -582,13 +582,24 @@ class GuessPhase extends Phase {
                 if (!interaction.isModalSubmit()) return;
                 if (interaction.customId !== "JustOneGuessModal") return;
                 this.guess = interaction.fields.getTextInputValue("JustOneGuess");
+                const embed = new EmbedBuilder()
+                    .setAuthor({name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined)})
+                    .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
+                    .setTimestamp()
+                    .setColor(0x2f3136)
+                    .setDescription(`The word was ${italic(this.state.word)}\n\n${bold("The hints were:")}`);
+                this.state.hints.forEach((hint, user) => {
+                    embed.addFields({name: hint, value: userMention(user.id), inline: true});
+                });
                 if (this.guess.toLowerCase() === this.state.word.toLowerCase()) {
-                    this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word correctly\n\nThe word was ${this.state.word}`, components: []});
-                    interaction.reply({content: "You guessed the word correctly", ephemeral: true});
+                    embed.setTitle(`${this.state.guesser.username} guessed ${this.state.word} correctly!`);
+                    this.game.rootMessage?.edit({embeds: [embed], components: []});
+                    interaction.reply({content: "Your guess was right!", ephemeral: true});
                 }
                 else {
-                    this.game.rootMessage?.edit({content: `${this.state.guesser.username} guessed the word incorrectly\n\nThe word was ${this.state.word}`, components: []});
-                    interaction.reply({content: "You guessed the word incorrectly", ephemeral: true});
+                    embed.setTitle(`${this.state.guesser.username} guessed ${this.guess}`);
+                    this.game.rootMessage?.edit({embeds: [embed], components: []});
+                    interaction.reply({content: "Your guess was wrong", ephemeral: true});
                 }
                 this.timer.stop();
             }
@@ -600,7 +611,14 @@ class GuessPhase extends Phase {
             this.game.client.off(event.type, event.execute);
         });
         if (this.guess === undefined) {
-            this.game.rootMessage?.edit({content: `${this.state.guesser.username} didn't guess in time!\n\nThe word was ${this.state.word}`, components: []});
+            const embed = new EmbedBuilder()
+                    .setAuthor({name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined)})
+                    .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
+                    .setTimestamp()
+                    .setColor(0x2f3136)
+                    .setTitle(`${this.state.guesser.username} did not guess in time!`)
+                    .setDescription(`The word was ${italic(this.state.word)}\n\n${bold("The hints were:")}`);
+            this.game.rootMessage?.edit({embeds: [embed], components: []});
         }
         this.game.currentPhase = new StartPhase(this.game);
     }

@@ -26,7 +26,7 @@ const config = new SlashCommandBuilder()
 			.addIntegerOption( option => option
 				.setName('pool')
 				.setDescription('The wordpool to add')
-				// TODO: Find solution for dynamic language
+				// TODO: Find solution for dynamic language, could use autocomplete
 				.addChoices(...wordpoolOptions.get('de')!.map((wordpool, index) => {return {name: wordpool, value: index}}))
 				.setRequired(true)
 			)
@@ -37,7 +37,7 @@ const config = new SlashCommandBuilder()
 			.addIntegerOption(option => option
 				.setName('pool')
 				.setDescription('The wordpool to remove')
-				// TODO: Find Solution for dynamic language
+				// TODO: Find Solution for dynamic language, could use autocomplete
 				.addChoices(...wordpoolOptions.get('de')!.map((wordpool, index) => {return {name: wordpool, value: index}}))
 				.setRequired(true)
 			)

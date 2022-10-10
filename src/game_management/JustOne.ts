@@ -9,6 +9,8 @@ export class JustOne extends Game {
     guessers: Array<User> = [];
     guessnt: Set<User>;
     lastGuesser?: User;
+    options: JustOneOptions;
+    wordpool: Array<string> = [];
     get players() {
         const players = new Set(this.guessers);
         this.guessnt.forEach(player => players.add(player));
@@ -38,6 +40,16 @@ type JustOneState = {
     guesser: User,
     hints: Map<User, string>,
 }
+
+class JustOneOptions {
+    wordpools: string[] = ["classic_main"];
+    language: 'de' = 'de';
+    startTime: number = 300;
+    hintTime: number = 180;
+    invalidHintTime: number = 90;
+    guessTime: number = 300;
+    restartTime: number = 150;
+};
 
 class StartPhase extends Phase {
     name = "start";

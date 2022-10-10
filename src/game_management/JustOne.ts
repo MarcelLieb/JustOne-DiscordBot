@@ -51,6 +51,7 @@ class StartPhase extends Phase {
         super();
         this.game = game;
         this.client = game.client;
+        this.game.events = [...this.game.events, ...this.events];
         this.events.forEach(event => {
             this.client.on(event.type, event.execute);
         });
@@ -202,6 +203,9 @@ class StartPhase extends Phase {
         this.events.forEach(event => {
             this.client.off(event.type, event.execute);
         });
+        const oldEvents = new Set(this.events);
+        this.game.events = this.game.events.filter(event => !oldEvents.has(event));
+        
         if (this.game instanceof JustOne) {
             this.game.currentPhase = new GiveHintPhase(this.game);
         }
@@ -222,7 +226,7 @@ class GiveHintPhase extends Phase {
     constructor(game: JustOne) {
         super();
         this.game = game;
-        this.game.events = this.events;
+        this.game.events =[...this.game.events, ...this.events];
         this.events.forEach(event => {
             this.game.client.on(event.type, event.execute);
         });
@@ -378,6 +382,9 @@ class GiveHintPhase extends Phase {
         this.events.forEach(event => {
             this.game.client.off(event.type, event.execute);
         });
+        const oldEvents = new Set(this.events);
+        this.game.events = this.game.events.filter(event => !oldEvents.has(event));
+
         if (this.game instanceof JustOne) {
             this.game.currentPhase = new RemoveInvalidPhase(this.game, this.interactions, {word: this.word, hints: this.hints, guesser: this.guesser});
         }
@@ -399,7 +406,7 @@ class RemoveInvalidPhase extends Phase {
         this.state = state;
         this.interactions = interactions;
         this.game = game;
-        this.game.events = this.events;
+        this.game.events = [...this.game.events, ...this.events];
         this.events.forEach(event => {
             this.game.client.on(event.type, event.execute);
         });
@@ -501,6 +508,9 @@ class RemoveInvalidPhase extends Phase {
         this.events.forEach(event => {
             this.game.client.off(event.type, event.execute);
         });
+        const oldEvents = new Set(this.events);
+        this.game.events = this.game.events.filter(event => !oldEvents.has(event));
+
         this.state.hints.forEach((_, key) => {
             if (this.invalid.has(key)) 
                 this.state.hints.delete(key);
@@ -521,7 +531,7 @@ class GuessPhase extends Phase {
     constructor(game: JustOne, state: JustOneState) {
         super();
         this.game = game;
-        this.game.events = this.events;
+        this.game.events = [...this.game.events, ...this.events];
         this.events.forEach(event => {
             this.game.client.on(event.type, event.execute);
         });
@@ -620,6 +630,9 @@ class GuessPhase extends Phase {
         this.events.forEach(event => {
             this.game.client.off(event.type, event.execute);
         });
+        const oldEvents = new Set(this.events);
+        this.game.events = this.game.events.filter(event => !oldEvents.has(event));
+
         if (this.guess === undefined) {
             const embed = new EmbedBuilder()
                     .setAuthor({name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined)})

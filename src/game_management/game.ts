@@ -1,6 +1,7 @@
 import { Interaction, User, Client, Message, EmbedBuilder } from "discord.js";
 
 export type Event = {
+    name: string;
     type: string,
     execute: (interaction: Interaction) => Promise<void>
 };

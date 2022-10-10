@@ -49,7 +49,7 @@ type JustOneState = {
 
 class JustOneOptions {
     wordpools: string[] = ["classic_main"];
-    language: 'de' = 'de';
+    language: keyof typeof wordpools = 'de';
     startTime: number = 300;
     hintTime: number = 180;
     invalidHintTime: number = 90;

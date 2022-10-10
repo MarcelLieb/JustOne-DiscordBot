@@ -17,10 +17,16 @@ export class JustOne extends Game {
         return players;
     }
 
-    constructor(client: Client, guildId: string, channelId: string, players: Set<User>, createInteraction?: Interaction) {
+    constructor(client: Client, guildId: string, channelId: string, players: Set<User>, createInteraction?: Interaction, options?: JustOneOptions) {
         super(client, guildId, channelId, createInteraction);
         this.currentPhase = new StartPhase(this);
         this.guessnt = new Set(players);
+        this.options = options ?? new JustOneOptions();
+        const selectedPools = new Set(this.options.wordpools);
+        wordpools[options?.language ?? "de"].forEach(wordpool => {
+            if (selectedPools.has(wordpool.name))
+                this.wordpool.push(...wordpool.words);
+        });
     }
 
     async stop() {
@@ -255,8 +261,7 @@ class GiveHintPhase extends Phase {
         this.helper = new Set(this.game.players);
         this.helper.delete(this.guesser);
 
-        // TODO: Make wordpool configurable
-        this.word = wordpools["classic_main"]["words"][Math.random() * wordpools["classic_main"]["words"].length | 0];
+        this.word = this.game.wordpool[Math.random() * this.game.wordpool.length | 0];
 
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
 

@@ -5,7 +5,6 @@ import wordpools from "../Data/wordpools.json";
 export class JustOne extends Game {
 
     currentPhase: Phase;
-    events: Array<Event> = [];
     guessers: Array<User> = [];
     guessnt: Set<User>;
     lastGuesser?: User;
@@ -16,10 +15,62 @@ export class JustOne extends Game {
         this.guessnt.forEach(player => players.add(player));
         return players;
     }
+    events: Array<Event> = [
+        {
+            name: "JustOneConfig",
+            type: "interactionCreate",
+            execute: async (interaction: Interaction) => {
+                if (interaction.guildId !== this.guildId || interaction.channelId !== this.channelId) return;
+                if (!interaction.isChatInputCommand()) return;
+                if (interaction.commandName !== "config") return;
 
+                if (interaction.options.getSubcommandGroup() === "wordpool") {
+                    if (interaction.options.getSubcommand() === "list"){
+                        interaction.reply({content: "Current wordpools:\n" + this.options.wordpools.map(wordpool => bold(wordpool)).join(", "), ephemeral: true});
+                        return;
+                    }
+                    
+                    if (interaction.options.getSubcommand() === "add") {
+                        const pool = interaction.options.getInteger("pool");
+                        if (pool === null) return;
+
+                        const wordpool = wordpools[this.options.language][pool].name;
+                        if (wordpool === undefined) return;
+                        if (this.options.wordpools.includes(wordpool)) {
+                            interaction.reply({content: "This wordpool is already in use", ephemeral: true});
+                            return;
+                        }
+
+                        this.options.wordpools.push(wordpool);
+                        interaction.reply({ content: `Added ${wordpool} to the wordpools`, ephemeral: true });
+
+                    } else if (interaction.options.getSubcommand() === "remove") {
+                        const pool = interaction.options.getInteger("pool");
+                        if (pool === null) return;
+
+                        const wordpool = wordpools[this.options.language][pool].name;
+                        
+                        const newWordpool = this.options.wordpools.filter(pool => pool !== wordpool);
+                        if (newWordpool.length < 1) {
+                            interaction.reply({ content: "You cannot remove all wordpools", ephemeral: true });
+                            return;
+                        }
+                        this.options.wordpools = newWordpool;
+
+                        interaction.reply({ content: `Removed ${wordpool} from the wordpools`, ephemeral: true });
+                    }
+
+                    const selectedPools = new Set(this.options.wordpools);
+                    wordpools[this.options.language].forEach(wordpool => {
+                        if (selectedPools.has(wordpool.name))
+                            this.wordpool.push(...wordpool.words);
+                    });
+                }
+            }
+        }
+    ]
     constructor(client: Client, guildId: string, channelId: string, players: Set<User>, createInteraction?: Interaction, options?: JustOneOptions) {
         super(client, guildId, channelId, createInteraction);
-        this.currentPhase = new StartPhase(this);
         this.guessnt = new Set(players);
         this.options = options ?? new JustOneOptions();
         const selectedPools = new Set(this.options.wordpools);
@@ -27,6 +78,10 @@ export class JustOne extends Game {
             if (selectedPools.has(wordpool.name))
                 this.wordpool.push(...wordpool.words);
         });
+        this.events.forEach(event => {
+            this.client.on(event.type, event.execute);
+        });
+        this.currentPhase = new StartPhase(this);
     }
 
     async stop() {

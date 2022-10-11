@@ -367,8 +367,7 @@ class GiveHintPhase extends Phase {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
                 if (interaction.customId !== "JustOneGiveHint") return;
-                // TODO: invert if after debugging
-                if (this.helper.has(interaction.user)) {
+                if (!this.helper.has(interaction.user)) {
                     await interaction.reply({ content: "You can't give a hint", ephemeral: true });
                     return;
                 }
@@ -393,8 +392,7 @@ class GiveHintPhase extends Phase {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isModalSubmit()) return;
                 if (interaction.customId !== "JustOneHintModal") return;
-                // TODO: invert if after debugging
-                if (this.helper.has(interaction.user)) {
+                if (!this.helper.has(interaction.user)) {
                     await interaction.reply({ content: "You can't give a hint", ephemeral: true });
                     return;
                 }
@@ -632,13 +630,6 @@ class GuessPhase extends Phase {
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
 
         this.timer = new Timer(new Set(this.game.players), this.game.options.guessTime, [this.game.rootMessage], this.advancePhase.bind(this));
-
-        // TODO: Improve Message Styling
-        let message = `It is ${this.state.guesser.username}'s turn to guess\n\n`;
-        this.state.hints.forEach((hint, user) => {
-            message += `${user.username}: ${hint}\n`;
-        });
-        message += `\nTime runs out ${time(Math.floor(this.timer.endTime / 1000), "R")}`;
 
         const buttons = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(

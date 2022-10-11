@@ -56,7 +56,7 @@ export class Timer {
         this.authorisedUsers.delete(user);
         if (this.authorisedUsers.size === 0) {
             this.timedMessages.forEach(async message => {
-                // TODO: Might need extra permissions
+                // XXX: Might need extra permissions
                 const oldContent = message.content;
                 const newContent = oldContent.replace(/<t:(\d+):R>/, 'now');
                 const embeds = message.embeds.map(embed => {
@@ -70,7 +70,7 @@ export class Timer {
 
         this.endTime = Date.now() + this.timeLeft * 1000 * this.authorisedUsers.size / (this.authorisedUsers.size + 1);
         this.timedMessages.forEach(async message => {
-            // TODO: Might need extra permissions
+            // XXX: Might need extra permissions
             const oldContent = message.content;
             const embeds = message.embeds.map(embed => {
                 return EmbedBuilder.from(embed).setDescription(embed.description?.replace(/<t:(\d+):R>/, `<t:${Math.floor(this.endTime / 1000)}:R>`) ?? '');

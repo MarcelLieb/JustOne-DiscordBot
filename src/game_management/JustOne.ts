@@ -66,6 +66,24 @@ export class JustOne extends Game {
                             this.wordpool.push(...wordpool.words);
                     });
                 }
+                if (interaction.options.getSubcommand() === "time") {
+                    const start = interaction.options.getInteger("start");
+                    if (start) this.options.startTime = start;
+
+                    const hint = interaction.options.getInteger("hint");
+                    if (hint) this.options.hintTime = hint;
+
+                    const guess = interaction.options.getInteger("guess");
+                    if (guess) this.options.guessTime = guess;
+
+                    const invalidhints = interaction.options.getInteger("invalidhints");
+                    if (invalidhints) this.options.invalidHintTime = invalidhints;
+
+                    const restart = interaction.options.getInteger("restart");
+                    if (restart) this.options.restartTime = restart;
+
+                    interaction.reply({ content: `Updated the times\nNew Times are:\nstart: ${this.options.startTime} seconds\nhint: ${this.options.hintTime} seconds\ninvalid Hints: ${this.options.invalidHintTime} seconds\nguess: ${this.options.guessTime} seconds\nrestart: ${this.options.restartTime} seconds`, ephemeral: true });
+                }
             }
         }
     ]
@@ -143,7 +161,7 @@ class StartPhase extends Phase {
             const embed = new EmbedBuilder()
                 .setAuthor({ name: 'Just One' })
                 .setTitle('Starting a new Round of Just One!')
-                .setDescription(`The game will start ${time(Math.floor(Date.now() / 1000) + 150, 'R')}`)
+                .setDescription(`The game will start ${time(Math.floor(Date.now() / 1000) + this.game.options.restartTime, 'R')}`)
                 .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
                 .setTimestamp()
                 .setColor(0x2f3136);
@@ -154,7 +172,7 @@ class StartPhase extends Phase {
             row.addComponents(leave);
             game.rootMessage?.reply({ embeds: [embed], components: [row] })
                 .then(message => {
-                    this.timer = new Timer(game.players, 150, [message], this.advancePhase.bind(this));
+                    this.timer = new Timer(game.players, this.game.options.restartTime, [message], this.advancePhase.bind(this));
                     this.game.rootMessage = message;
                 });
         }
@@ -162,7 +180,7 @@ class StartPhase extends Phase {
             const embed = new EmbedBuilder()
                 .setAuthor({ name: 'Just One' })
                 .setTitle('Welcome to Just One!')
-                .setDescription(`The game will start ${time(Math.floor(Date.now() / 1000) + 300, 'R')}`)
+                .setDescription(`The game will start ${time(Math.floor(Date.now() / 1000) + this.game.options.startTime, 'R')}`)
                 .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
                 .setTimestamp()
                 .setColor(0x2f3136);
@@ -172,7 +190,7 @@ class StartPhase extends Phase {
                     components: [row],
                     fetchReply: true
                 }).then(reply => {
-                    this.timer = new Timer(game.players, 300, [reply], this.advancePhase.bind(this));
+                    this.timer = new Timer(game.players, this.game.options.startTime, [reply], this.advancePhase.bind(this));
                     this.game.rootMessage = reply;
                 });
         }
@@ -323,7 +341,7 @@ class GiveHintPhase extends Phase {
 
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
 
-        this.timer = new Timer(new Set(this.helper), 180, [this.game.rootMessage], this.advancePhase.bind(this));
+        this.timer = new Timer(new Set(this.helper), this.game.options.hintTime, [this.game.rootMessage], this.advancePhase.bind(this));
 
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
@@ -334,7 +352,7 @@ class GiveHintPhase extends Phase {
             );
         const embed = new EmbedBuilder()
             .setAuthor({ name: 'Just One', iconURL: (this.guesser.avatarURL() ?? undefined) })
-            .setDescription(`${bold("It's " + userMention(this.guesser.id) + "'s turn to guess!")}\n\nSubmit your ${bold("Hints")} now!\n\nHint submission is over ${time(Math.floor(Date.now() / 1000) + 180, 'R')}`)
+            .setDescription(`${bold("It's " + userMention(this.guesser.id) + "'s turn to guess!")}\n\nSubmit your ${bold("Hints")} now!\n\nHint submission is over ${time(Math.floor(this.timer.endTime / 1000), 'R')}`)
             .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
             .setTimestamp()
             .setColor(0x2f3136);
@@ -509,7 +527,7 @@ class RemoveInvalidPhase extends Phase {
 
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
 
-        this.timer = new Timer(new Set(this.game.players), 90, [this.game.rootMessage], this.advancePhase.bind(this));
+        this.timer = new Timer(new Set(this.game.players), this.game.options.invalidHintTime, [this.game.rootMessage], this.advancePhase.bind(this));
         const embed = new EmbedBuilder()
             .setAuthor({ name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined) })
             .setTitle(`${this.state.guesser.username} is the guesser`)
@@ -613,7 +631,7 @@ class GuessPhase extends Phase {
 
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
 
-        this.timer = new Timer(new Set(this.game.players), 300, [this.game.rootMessage], this.advancePhase.bind(this));
+        this.timer = new Timer(new Set(this.game.players), this.game.options.guessTime, [this.game.rootMessage], this.advancePhase.bind(this));
 
         // TODO: Improve Message Styling
         let message = `It is ${this.state.guesser.username}'s turn to guess\n\n`;

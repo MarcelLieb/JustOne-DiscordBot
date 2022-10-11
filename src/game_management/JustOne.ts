@@ -384,7 +384,6 @@ class GiveHintPhase extends Phase {
                 );
                 const modal = new ModalBuilder().setTitle(`The word is \"${this.word}\"`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);
-                this.interactions.set(interaction.user, interaction);
             }
         },
         {
@@ -414,6 +413,7 @@ class GiveHintPhase extends Phase {
                             .setStyle(ButtonStyle.Secondary),
                     );
                 await interaction.reply({ content: `Your Hint for \"${this.word}\" is \"${hint}"`, components: [row], ephemeral: true });
+                this.interactions.set(interaction.user, interaction);
             }
         },
         {
@@ -504,7 +504,7 @@ class RemoveInvalidPhase extends Phase {
         });
 
         this.interactions.forEach((interaction, _) => {
-            if (!interaction.isButton()) return;
+            if (!interaction.isModalSubmit()) return;
 
             const selectMenu = new SelectMenuBuilder()
                 .setCustomId("JustOneInvalid")

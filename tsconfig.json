@@ -1,7 +1,10 @@
 {
     "compilerOptions": {
+      "rootDir": "src",
+      "outDir": "build",
       "target": "ES2015",
-      "module": "commonjs",
+      "moduleResolution": "node",
+      "module": "ES6",
       "strict": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
@@ -9,5 +12,9 @@
       "resolveJsonModule": true
     },
     "$schema": "https://json.schemastore.org/tsconfig",
-    "display": "Recommended"
+    "display": "Recommended",
+    "exclude":[
+      "node_modules",
+      "build"
+    ]
   }

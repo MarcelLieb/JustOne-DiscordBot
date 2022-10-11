@@ -9,6 +9,9 @@ const token = process.env.DISCORD_TOKEN;
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
+// Make number of possible listeners infinite
+client.setMaxListeners(0);
+
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
 	console.log('Ready!');

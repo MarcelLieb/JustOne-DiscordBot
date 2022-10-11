@@ -25,11 +25,11 @@ export class JustOne extends Game {
                 if (interaction.commandName !== "config") return;
 
                 if (interaction.options.getSubcommandGroup() === "wordpool") {
-                    if (interaction.options.getSubcommand() === "list"){
-                        interaction.reply({content: "Current wordpools:\n" + this.options.wordpools.map(wordpool => bold(wordpool)).join(", "), ephemeral: true});
+                    if (interaction.options.getSubcommand() === "list") {
+                        interaction.reply({ content: "Current wordpools:\n" + this.options.wordpools.map(wordpool => bold(wordpool)).join(", "), ephemeral: true });
                         return;
                     }
-                    
+
                     if (interaction.options.getSubcommand() === "add") {
                         const pool = interaction.options.getInteger("pool");
                         if (pool === null) return;
@@ -37,7 +37,7 @@ export class JustOne extends Game {
                         const wordpool = wordpools[this.options.language][pool].name;
                         if (wordpool === undefined) return;
                         if (this.options.wordpools.includes(wordpool)) {
-                            interaction.reply({content: "This wordpool is already in use", ephemeral: true});
+                            interaction.reply({ content: "This wordpool is already in use", ephemeral: true });
                             return;
                         }
 
@@ -49,7 +49,7 @@ export class JustOne extends Game {
                         if (pool === null) return;
 
                         const wordpool = wordpools[this.options.language][pool].name;
-                        
+
                         const newWordpool = this.options.wordpools.filter(pool => pool !== wordpool);
                         if (newWordpool.length < 1) {
                             interaction.reply({ content: "You cannot remove all wordpools", ephemeral: true });
@@ -132,16 +132,16 @@ class StartPhase extends Phase {
         });
         if (!game.createInteraction?.isChatInputCommand()) return;
         const row = new ActionRowBuilder<ButtonBuilder>()
-			.addComponents(
-				new ButtonBuilder()
-					.setCustomId('JustOneJoin')
-					.setLabel('Join!')
-					.setStyle(ButtonStyle.Primary),
-			);
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('JustOneJoin')
+                    .setLabel('Join!')
+                    .setStyle(ButtonStyle.Primary),
+            );
 
         if (game.createInteraction.replied) {
             const embed = new EmbedBuilder()
-                .setAuthor({name: 'Just One'})
+                .setAuthor({ name: 'Just One' })
                 .setTitle('Starting a new Round of Just One!')
                 .setDescription(`The game will start ${time(Math.floor(Date.now() / 1000) + 150, 'R')}`)
                 .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
@@ -152,56 +152,56 @@ class StartPhase extends Phase {
                 .setLabel('Leave')
                 .setStyle(ButtonStyle.Danger);
             row.addComponents(leave);
-            game.rootMessage?.reply({embeds: [embed], components: [row]})
-            .then(message => {
-                this.timer = new Timer(game.players, 150, [message], this.advancePhase.bind(this));
-                this.game.rootMessage = message;
-            });
+            game.rootMessage?.reply({ embeds: [embed], components: [row] })
+                .then(message => {
+                    this.timer = new Timer(game.players, 150, [message], this.advancePhase.bind(this));
+                    this.game.rootMessage = message;
+                });
         }
         else {
             const embed = new EmbedBuilder()
-                .setAuthor({name: 'Just One'})
+                .setAuthor({ name: 'Just One' })
                 .setTitle('Welcome to Just One!')
                 .setDescription(`The game will start ${time(Math.floor(Date.now() / 1000) + 300, 'R')}`)
                 .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
                 .setTimestamp()
                 .setColor(0x2f3136);
             game.createInteraction.reply(
-            {
-                embeds: [embed], 
-                components: [row], 
-                fetchReply: true
-            }).then(reply => {
-                this.timer = new Timer(game.players, 300, [reply], this.advancePhase.bind(this));
-                this.game.rootMessage = reply;
-            });
+                {
+                    embeds: [embed],
+                    components: [row],
+                    fetchReply: true
+                }).then(reply => {
+                    this.timer = new Timer(game.players, 300, [reply], this.advancePhase.bind(this));
+                    this.game.rootMessage = reply;
+                });
         }
     }
 
     events = [
         {
             name: "JustOneJoin",
-            type: "interactionCreate", 
+            type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
-                if (interaction.customId !== "JustOneJoin" ) return;
+                if (interaction.customId !== "JustOneJoin") return;
                 if (!this.joinable) {
-                    interaction.reply({content: "No more players can currently join this game", ephemeral: true});
+                    interaction.reply({ content: "No more players can currently join this game", ephemeral: true });
                     return;
                 }
                 if (this.game.players.has(interaction.user)) {
                     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
                         new ButtonBuilder()
-                        .setCustomId('JustOneHurryUp')
-                        .setLabel('Hurry up!')
-                        .setStyle(ButtonStyle.Primary),
+                            .setCustomId('JustOneHurryUp')
+                            .setLabel('Hurry up!')
+                            .setStyle(ButtonStyle.Primary),
                         new ButtonBuilder()
-                        .setCustomId('JustOneLeave')
-                        .setLabel('Leave')
-                        .setStyle(ButtonStyle.Danger),
+                            .setCustomId('JustOneLeave')
+                            .setLabel('Leave')
+                            .setStyle(ButtonStyle.Danger),
                     )
-                    interaction.reply({content: "You are already in this game", ephemeral: true, components: [row]});
+                    interaction.reply({ content: "You are already in this game", ephemeral: true, components: [row] });
                     return;
                 }
 
@@ -210,13 +210,13 @@ class StartPhase extends Phase {
 
                 const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
                     new ButtonBuilder()
-                    .setCustomId('JustOneHurryUp')
-                    .setLabel('Hurry up!')
-                    .setStyle(ButtonStyle.Primary),
+                        .setCustomId('JustOneHurryUp')
+                        .setLabel('Hurry up!')
+                        .setStyle(ButtonStyle.Primary),
                     new ButtonBuilder()
-                    .setCustomId('JustOneLeave')
-                    .setLabel('Leave')
-                    .setStyle(ButtonStyle.Danger),
+                        .setCustomId('JustOneLeave')
+                        .setLabel('Leave')
+                        .setStyle(ButtonStyle.Danger),
                 )
                 interaction.reply({
                     content: `${interaction.user.username} has joined the game!`,
@@ -227,28 +227,28 @@ class StartPhase extends Phase {
         },
         {
             name: "JustOneHurryUp",
-            type: "interactionCreate", 
+            type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
                 if (interaction.customId !== "JustOneHurryUp") return;
                 if (!this.timer?.speedUp(interaction.user)) {
-                    interaction.reply({content: "You already sped up the timer", ephemeral: true});
+                    interaction.reply({ content: "You already sped up the timer", ephemeral: true });
                     return;
                 };
                 const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
                     new ButtonBuilder()
-                    .setCustomId('JustOneHurryUp')
-                    .setLabel('Hurry up!')
-                    .setStyle(ButtonStyle.Primary)
-                    .setDisabled(true),
+                        .setCustomId('JustOneHurryUp')
+                        .setLabel('Hurry up!')
+                        .setStyle(ButtonStyle.Primary)
+                        .setDisabled(true),
                     new ButtonBuilder()
-                    .setCustomId('JustOneLeave')
-                    .setLabel('Leave')
-                    .setStyle(ButtonStyle.Danger),
+                        .setCustomId('JustOneLeave')
+                        .setLabel('Leave')
+                        .setStyle(ButtonStyle.Danger),
                 )
                 const update = interaction.message.content + `\nTimer sped up!`;
-                interaction.update({content: update, components: [row]});
+                interaction.update({ content: update, components: [row] });
             }
         },
         {
@@ -259,7 +259,7 @@ class StartPhase extends Phase {
                 if (!interaction.isButton()) return;
                 if (interaction.customId !== "JustOneLeave") return;
                 if (!this.game.players.has(interaction.user)) {
-                    interaction.reply({content: "You are not in this game", ephemeral: true});
+                    interaction.reply({ content: "You are not in this game", ephemeral: true });
                     return;
                 }
                 if (this.game.guessers.includes(interaction.user)) {
@@ -269,7 +269,7 @@ class StartPhase extends Phase {
                     this.game.guessnt.delete(interaction.user);
                 }
                 this.timer?.authorisedUsers.delete(interaction.user);
-                interaction.reply({content: `${interaction.user.username} has left the game`, ephemeral: true});
+                interaction.reply({ content: `${interaction.user.username} has left the game`, ephemeral: true });
             }
         }
     ];
@@ -301,7 +301,7 @@ class GiveHintPhase extends Phase {
     constructor(game: JustOne) {
         super();
         this.game = game;
-        this.game.events =[...this.game.events, ...this.events];
+        this.game.events = [...this.game.events, ...this.events];
         this.events.forEach(event => {
             this.game.client.on(event.type, event.execute);
         });
@@ -333,12 +333,12 @@ class GiveHintPhase extends Phase {
                     .setStyle(ButtonStyle.Primary),
             );
         const embed = new EmbedBuilder()
-            .setAuthor({name: 'Just One', iconURL: (this.guesser.avatarURL() ?? undefined)})
+            .setAuthor({ name: 'Just One', iconURL: (this.guesser.avatarURL() ?? undefined) })
             .setDescription(`${bold("It's " + userMention(this.guesser.id) + "'s turn to guess!")}\n\nSubmit your ${bold("Hints")} now!\n\nHint submission is over ${time(Math.floor(Date.now() / 1000) + 180, 'R')}`)
             .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
             .setTimestamp()
             .setColor(0x2f3136);
-        this.game.rootMessage?.edit({embeds: [embed], components: [row]});
+        this.game.rootMessage?.edit({ embeds: [embed], components: [row] });
     }
 
     events = [
@@ -351,18 +351,18 @@ class GiveHintPhase extends Phase {
                 if (interaction.customId !== "JustOneGiveHint") return;
                 // TODO: invert if after debugging
                 if (this.helper.has(interaction.user)) {
-                    await interaction.reply({content: "You can't give a hint", ephemeral: true});
+                    await interaction.reply({ content: "You can't give a hint", ephemeral: true });
                     return;
                 }
 
                 const row = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
                     new TextInputBuilder()
-                    .setCustomId('JustOneHint')
-                    .setPlaceholder('Enter your hint here')
-                    .setMinLength(1).setMaxLength(100)
-                    .setLabel(`Enter your hint for guessing \"${this.word}\"`)
-                    .setStyle(TextInputStyle.Short)
-                    .setRequired(true),
+                        .setCustomId('JustOneHint')
+                        .setPlaceholder('Enter your hint here')
+                        .setMinLength(1).setMaxLength(100)
+                        .setLabel(`Enter your hint for guessing \"${this.word}\"`)
+                        .setStyle(TextInputStyle.Short)
+                        .setRequired(true),
                 );
                 const modal = new ModalBuilder().setTitle(`The word is \"${this.word}\"`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);
@@ -378,24 +378,24 @@ class GiveHintPhase extends Phase {
                 if (interaction.customId !== "JustOneHintModal") return;
                 // TODO: invert if after debugging
                 if (this.helper.has(interaction.user)) {
-                    await interaction.reply({content: "You can't give a hint", ephemeral: true});
+                    await interaction.reply({ content: "You can't give a hint", ephemeral: true });
                     return;
                 }
                 const hint = interaction.fields.getTextInputValue("JustOneHint");
                 this.hints.set(interaction.user, hint);
 
                 const row = new ActionRowBuilder<ButtonBuilder>()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('JustOneHurryUp')
-                        .setLabel('Hurry Up!')
-                        .setStyle(ButtonStyle.Primary),
-                    new ButtonBuilder()
-                        .setCustomId("JustOneEditHint")
-                        .setLabel("Edit Hint")
-                        .setStyle(ButtonStyle.Secondary),
-                );
-                await interaction.reply({content: `Your Hint for \"${this.word}\" is \"${hint}"`, components: [row], ephemeral: true});
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('JustOneHurryUp')
+                            .setLabel('Hurry Up!')
+                            .setStyle(ButtonStyle.Primary),
+                        new ButtonBuilder()
+                            .setCustomId("JustOneEditHint")
+                            .setLabel("Edit Hint")
+                            .setStyle(ButtonStyle.Secondary),
+                    );
+                await interaction.reply({ content: `Your Hint for \"${this.word}\" is \"${hint}"`, components: [row], ephemeral: true });
             }
         },
         {
@@ -406,18 +406,18 @@ class GiveHintPhase extends Phase {
                 if (!interaction.isButton()) return;
                 if (interaction.customId !== "JustOneEditHint") return;
                 if (!this.hints.has(interaction.user)) {
-                    interaction.reply({content: "You didn't give a hint", ephemeral: true});
+                    interaction.reply({ content: "You didn't give a hint", ephemeral: true });
                     return;
                 }
                 const row = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
                     new TextInputBuilder()
-                    .setCustomId('JustOneHint')
-                    .setPlaceholder('Enter your hint here')
-                    .setMinLength(1).setMaxLength(100)
-                    .setLabel(`Enter your hint for guessing \"${this.word}\"`)
-                    .setStyle(TextInputStyle.Short)
-                    .setValue(this.hints.get(interaction.user) ?? "")
-                    .setRequired(true),
+                        .setCustomId('JustOneHint')
+                        .setPlaceholder('Enter your hint here')
+                        .setMinLength(1).setMaxLength(100)
+                        .setLabel(`Enter your hint for guessing \"${this.word}\"`)
+                        .setStyle(TextInputStyle.Short)
+                        .setValue(this.hints.get(interaction.user) ?? "")
+                        .setRequired(true),
                 );
                 const modal = new ModalBuilder().setTitle(`The word is \"${this.word}\"`).setCustomId("JustOneHintModal").addComponents(row);
                 await interaction.showModal(modal);
@@ -425,29 +425,29 @@ class GiveHintPhase extends Phase {
         },
         {
             name: "JustOneHurryUp",
-            type: "interactionCreate", 
+            type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
                 if (interaction.customId !== "JustOneHurryUp") return;
                 if (!this.timer.speedUp(interaction.user)) {
-                    interaction.reply({content: "You already sped up the timer", ephemeral: true});
+                    interaction.reply({ content: "You already sped up the timer", ephemeral: true });
                     return;
                 };
                 const row = new ActionRowBuilder<ButtonBuilder>()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('JustOneHurryUp')
-                        .setLabel('Hurry Up!')
-                        .setStyle(ButtonStyle.Primary)
-                        .setDisabled(true),
-                    new ButtonBuilder()
-                        .setCustomId("JustOneEditHint")
-                        .setLabel("Edit Hint")
-                        .setStyle(ButtonStyle.Secondary),
-                );
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('JustOneHurryUp')
+                            .setLabel('Hurry Up!')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(true),
+                        new ButtonBuilder()
+                            .setCustomId("JustOneEditHint")
+                            .setLabel("Edit Hint")
+                            .setStyle(ButtonStyle.Secondary),
+                    );
                 const update = interaction.message.content + `\nTimer sped up!`;
-                interaction.update({content: update, components: [row]});
+                interaction.update({ content: update, components: [row] });
             }
         }
     ];
@@ -460,7 +460,7 @@ class GiveHintPhase extends Phase {
         this.game.events = this.game.events.filter(event => !oldEvents.has(event));
 
         if (this.game instanceof JustOne) {
-            this.game.currentPhase = new RemoveInvalidPhase(this.game, this.interactions, {word: this.word, hints: this.hints, guesser: this.guesser});
+            this.game.currentPhase = new RemoveInvalidPhase(this.game, this.interactions, { word: this.word, hints: this.hints, guesser: this.guesser });
         }
     }
 }
@@ -475,7 +475,7 @@ class RemoveInvalidPhase extends Phase {
     menuInteractions: Map<User, SelectMenuInteraction> = new Map();
     timer: Timer;
 
-    constructor(game: JustOne, interactions:Map<User, Interaction>, state: JustOneState) {
+    constructor(game: JustOne, interactions: Map<User, Interaction>, state: JustOneState) {
         super();
         this.state = state;
         this.interactions = interactions;
@@ -494,30 +494,30 @@ class RemoveInvalidPhase extends Phase {
                 .setMinValues(0)
                 .setMaxValues(this.state.hints.size)
             this.state.hints.forEach((hint, user) => {
-                selectMenu.addOptions({label: hint, description: `${user.username}'s hint`, value: user.id});
+                selectMenu.addOptions({ label: hint, description: `${user.username}'s hint`, value: user.id });
             });
             const select = new ActionRowBuilder<SelectMenuBuilder>()
-			.addComponents(selectMenu);
+                .addComponents(selectMenu);
             const buttons = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('JustOneHurryUp')
-                    .setLabel('Hurry Up!')
-                    .setStyle(ButtonStyle.Primary));
-            interaction.followUp({content: `Select all hints that are duplicate or similar to \"${this.state.word}\"`, ephemeral: true, components: [select, buttons]});
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('JustOneHurryUp')
+                        .setLabel('Hurry Up!')
+                        .setStyle(ButtonStyle.Primary));
+            interaction.followUp({ content: `Select all hints that are duplicate or similar to \"${this.state.word}\"`, ephemeral: true, components: [select, buttons] });
         });
 
         if (!this.game.rootMessage) throw new Error("Something went wrong\nNo rootMessage");
 
         this.timer = new Timer(new Set(this.game.players), 90, [this.game.rootMessage], this.advancePhase.bind(this));
         const embed = new EmbedBuilder()
-            .setAuthor({name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined)})
+            .setAuthor({ name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined) })
             .setTitle(`${this.state.guesser.username} is the guesser`)
             .setDescription(`Please select all hints that are duplicate or similar to the word.\nPress \"Hurry up!\" if all are valid.\n\nTime is over ${time(Math.floor(this.timer.endTime / 1000), "R")}`)
             .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
             .setTimestamp()
             .setColor(0x2f3136);
-        this.game.rootMessage?.edit({embeds: [embed], components: []});
+        this.game.rootMessage?.edit({ embeds: [embed], components: [] });
     }
 
     events = [
@@ -543,37 +543,37 @@ class RemoveInvalidPhase extends Phase {
                 });
 
                 const buttons = new ActionRowBuilder<ButtonBuilder>()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('JustOneHurryUp')
-                        .setLabel('Hurry Up!')
-                        .setStyle(ButtonStyle.Primary));
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('JustOneHurryUp')
+                            .setLabel('Hurry Up!')
+                            .setStyle(ButtonStyle.Primary));
 
                 this.menuInteractions.forEach(interaction => {
-                    interaction.update({content: message, components: [buttons]});
+                    interaction.update({ content: message, components: [buttons] });
                 });
             }
         },
         {
             name: "JustOneHurryUp",
-            type: "interactionCreate", 
+            type: "interactionCreate",
             execute: async (interaction: Interaction) => {
                 if (interaction.guildId !== this.game.guildId || interaction.channelId !== this.game.channelId) return;
                 if (!interaction.isButton()) return;
                 if (interaction.customId !== "JustOneHurryUp") return;
                 if (!this.timer.speedUp(interaction.user)) {
-                    interaction.reply({content: "You already sped up the timer", ephemeral: true});
+                    interaction.reply({ content: "You already sped up the timer", ephemeral: true });
                     return;
                 };
                 const buttons = new ActionRowBuilder<ButtonBuilder>()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('JustOneHurryUp')
-                        .setLabel('Hurry Up!')
-                        .setStyle(ButtonStyle.Primary)
-                        .setDisabled(true));
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('JustOneHurryUp')
+                            .setLabel('Hurry Up!')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(true));
                 const update = interaction.message.content + `\nTimer sped up!`;
-                interaction.update({content: update, components: [buttons]});
+                interaction.update({ content: update, components: [buttons] });
             }
         },
     ];
@@ -586,7 +586,7 @@ class RemoveInvalidPhase extends Phase {
         this.game.events = this.game.events.filter(event => !oldEvents.has(event));
 
         this.state.hints.forEach((_, key) => {
-            if (this.invalid.has(key)) 
+            if (this.invalid.has(key))
                 this.state.hints.delete(key);
         });
 
@@ -628,18 +628,18 @@ class GuessPhase extends Phase {
                     .setCustomId('JustOneGuessButton')
                     .setLabel('Guess')
                     .setStyle(ButtonStyle.Primary));
-        
+
         const embed = new EmbedBuilder()
-            .setAuthor({name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined)})
+            .setAuthor({ name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined) })
             .setTitle(`Time to guess!`)
             .setDescription(`${userMention(this.state.guesser.id)} can now guess the word!\n\nYour time runs out ${time(Math.floor(this.timer.endTime / 1000), "R")}\n\n\n${bold("Your hints are:")}`)
             .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
             .setTimestamp()
             .setColor(0x2f3136);
         this.state.hints.forEach((hint, user) => {
-            embed.addFields({name: hint, value: userMention(user.id), inline: true});
+            embed.addFields({ name: hint, value: userMention(user.id), inline: true });
         });
-        this.game.rootMessage?.edit({embeds: [embed], components: [buttons]});
+        this.game.rootMessage?.edit({ embeds: [embed], components: [buttons] });
     }
 
     events = [
@@ -651,17 +651,17 @@ class GuessPhase extends Phase {
                 if (!interaction.isButton()) return;
                 if (interaction.customId !== "JustOneGuessButton") return;
                 if (interaction.user.id !== this.state.guesser.id) {
-                    interaction.reply({content: "You are not the guesser", ephemeral: true});
+                    interaction.reply({ content: "You are not the guesser", ephemeral: true });
                     return;
                 }
                 const row = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
                     new TextInputBuilder()
-                    .setCustomId('JustOneGuess')
-                    .setPlaceholder('Enter your guess here')
-                    .setMinLength(1).setMaxLength(100)
-                    .setLabel(`Enter your guess`)
-                    .setStyle(TextInputStyle.Short)
-                    .setRequired(true),
+                        .setCustomId('JustOneGuess')
+                        .setPlaceholder('Enter your guess here')
+                        .setMinLength(1).setMaxLength(100)
+                        .setLabel(`Enter your guess`)
+                        .setStyle(TextInputStyle.Short)
+                        .setRequired(true),
                 );
 
                 const modal = new ModalBuilder().setTitle(`Submit your guess`).setCustomId("JustOneGuessModal").addComponents(row);
@@ -677,23 +677,23 @@ class GuessPhase extends Phase {
                 if (interaction.customId !== "JustOneGuessModal") return;
                 this.guess = interaction.fields.getTextInputValue("JustOneGuess");
                 const embed = new EmbedBuilder()
-                    .setAuthor({name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined)})
+                    .setAuthor({ name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined) })
                     .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
                     .setTimestamp()
                     .setColor(0x2f3136)
                     .setDescription(`The word was ${italic(this.state.word)}\n\n${bold("The hints were:")}`);
                 this.state.hints.forEach((hint, user) => {
-                    embed.addFields({name: hint, value: userMention(user.id), inline: true});
+                    embed.addFields({ name: hint, value: userMention(user.id), inline: true });
                 });
                 if (this.guess.toLowerCase() === this.state.word.toLowerCase()) {
                     embed.setTitle(`${this.state.guesser.username} guessed ${this.state.word} correctly!`);
-                    this.game.rootMessage?.edit({embeds: [embed], components: []});
-                    interaction.reply({content: "Your guess was right!", ephemeral: true});
+                    this.game.rootMessage?.edit({ embeds: [embed], components: [] });
+                    interaction.reply({ content: "Your guess was right!", ephemeral: true });
                 }
                 else {
                     embed.setTitle(`${this.state.guesser.username} guessed ${this.guess}`);
-                    this.game.rootMessage?.edit({embeds: [embed], components: []});
-                    interaction.reply({content: "Your guess was wrong", ephemeral: true});
+                    this.game.rootMessage?.edit({ embeds: [embed], components: [] });
+                    interaction.reply({ content: "Your guess was wrong", ephemeral: true });
                 }
                 this.timer.stop();
             }
@@ -709,13 +709,13 @@ class GuessPhase extends Phase {
 
         if (this.guess === undefined) {
             const embed = new EmbedBuilder()
-                    .setAuthor({name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined)})
-                    .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
-                    .setTimestamp()
-                    .setColor(0x2f3136)
-                    .setTitle(`${this.state.guesser.username} did not guess in time!`)
-                    .setDescription(`The word was ${italic(this.state.word)}\n\n${bold("The hints were:")}`);
-            this.game.rootMessage?.edit({embeds: [embed], components: []});
+                .setAuthor({ name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined) })
+                .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
+                .setTimestamp()
+                .setColor(0x2f3136)
+                .setTitle(`${this.state.guesser.username} did not guess in time!`)
+                .setDescription(`The word was ${italic(this.state.word)}\n\n${bold("The hints were:")}`);
+            this.game.rootMessage?.edit({ embeds: [embed], components: [] });
         }
         this.game.currentPhase = new StartPhase(this.game);
     }

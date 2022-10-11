@@ -33,7 +33,7 @@ client.on('interactionCreate', async interaction => {
 	if (commandName === 'stop') {
 		const game = games.find(game => game.guildId === interaction.guildId && game.channelId === interaction.channelId);
 		if (game) {
-			await game.stop();
+			game.stop();
 			games.splice(games.indexOf(game), 1);
 			interaction.reply({ content: 'Game stopped', ephemeral: true });
 			return;

@@ -694,6 +694,7 @@ class GuessPhase extends Phase {
                 if (!interaction.isModalSubmit()) return;
                 if (interaction.customId !== "JustOneGuessModal") return;
                 this.guess = interaction.fields.getTextInputValue("JustOneGuess");
+                this.guess = this.guess.trimStart().trimEnd();
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: 'Just One', iconURL: (this.state.guesser.avatarURL() ?? undefined) })
                     .setThumbnail('https://cdn.svc.asmodee.net/production-rprod/storage/games/justone/justone-logo-1604323546mSp1o-large.png')
